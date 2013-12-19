@@ -17,11 +17,14 @@
 %%%============================================================================
 %%% API
 %%%============================================================================
-start_link() -> gen_server:start_link({local, ?SERVER}, ?MODULE, [queue:new()], []).
+start_link() -> 
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [queue:new()], []).
 
-enqueue(Action) -> gen_server:cast(?SERVER, {enqueue, Action}).
+enqueue(Action) -> 
+    gen_server:cast(?SERVER, {enqueue, Action}).
 
-info() -> gen_server:cast(?SERVER, info).
+info() -> 
+    gen_server:cast(?SERVER, info).
 
 %%%============================================================================
 %%% gen_server callbacks
