@@ -60,6 +60,4 @@ code_change(_OldVsn, Q, _Extra) -> {ok, Q}.
 %%%============================================================================
 %%% Internal functions
 %%%============================================================================
-execute(Action) -> 
-    Action(), 
-    gen_server:cast(?SERVER, next).
+execute(Action) -> Action(), gen_server:cast(?SERVER, next).
