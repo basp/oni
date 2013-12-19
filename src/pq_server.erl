@@ -38,7 +38,7 @@ handle_call(info, _From, Q) ->
 handle_cast({enqueue, Action}, Q) ->
     NewQ = queue:in(Action, Q),
     case queue:is_empty(Q) of
-        true -> spawn(fun() -> execute(Action) end);
+        execute(Action),
         false -> ok
     end,
     {noreply, NewQ};
@@ -48,7 +48,7 @@ handle_cast(next, Q) ->
         true -> ok;
         false ->
             {value, Action} = queue:peek(NewQ),
-            spawn(fun() -> execute(Action) end)
+            execute(Action)
     end,
     {noreply, NewQ}.
 
@@ -61,4 +61,6 @@ code_change(_OldVsn, Q, _Extra) -> {ok, Q}.
 %%%============================================================================
 %%% Internal functions
 %%%============================================================================
-execute(Action) -> Action(), gen_server:cast(?SERVER, next).
+execute(Action) -> 
+    F = fun() -> Action(), gen_server:cast(?SERVER, next),
+    spawn(F).
