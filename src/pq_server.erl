@@ -44,11 +44,9 @@ handle_cast({enqueue, Action}, Q) ->
     {noreply, NewQ};
 handle_cast(next, Q) ->
     {_Completed, NewQ} = queue:out(Q),
-    case queue:is_empty(NewQ) of
-        true -> ok;
-        false ->
-            {value, Action} = queue:peek(NewQ),
-            execute(Action)
+    case queue:peek(NewQ) of
+        empty -> ok;
+        {value, Action} -> execute(Action)
     end,
     {noreply, NewQ}.
 
