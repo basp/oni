@@ -7,25 +7,23 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, enqueue/1, info/0]).
+-export([start_link/0, enqueue/2, info/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, 
          code_change/3]).
 
--define(SERVER, ?MODULE).
-
 %%%============================================================================
 %%% API
 %%%============================================================================
 start_link() -> 
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [queue:new()], []).
+    gen_server:start_link(?MODULE, [queue:new()], []).
 
-enqueue(Action) -> 
-    gen_server:cast(?SERVER, {enqueue, Action}).
+enqueue(Pid, Action) -> 
+    gen_server:cast(Pid, {enqueue, Action}).
 
-info() -> 
-    gen_server:cast(?SERVER, info).
+info(Pid) -> 
+    gen_server:call(Pid, info).
 
 %%%============================================================================
 %%% gen_server callbacks
@@ -38,7 +36,7 @@ handle_call(info, _From, Q) ->
 handle_cast({enqueue, Action}, Q) ->
     NewQ = queue:in(Action, Q),
     case queue:is_empty(Q) of
-        true -> execute(Action);
+        true -> execute(self(), Action);
         false -> ok
     end,
     {noreply, NewQ};
@@ -46,7 +44,7 @@ handle_cast(next, Q) ->
     {_Completed, NewQ} = queue:out(Q),
     case queue:peek(NewQ) of
         empty -> ok;
-        {value, Action} -> execute(Action)
+        {value, Action} -> execute(self(), Action)
     end,
     {noreply, NewQ}.
 
@@ -59,6 +57,6 @@ code_change(_OldVsn, Q, _Extra) -> {ok, Q}.
 %%%============================================================================
 %%% Internal functions
 %%%============================================================================
-execute(Action) -> 
-    F = fun() -> Action(), gen_server:cast(?SERVER, next) end,
+execute(Pid, Action) -> 
+    F = fun() -> Action(), gen_server:cast(Pid, next) end,
     spawn(F).

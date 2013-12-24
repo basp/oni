@@ -1,0 +1,1 @@
+ls src | foreach { erlc -o ebin $_.fullname }
