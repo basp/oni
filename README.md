@@ -78,9 +78,9 @@ After connecting with your telnet client the Erlang server shell should output t
 Or someething quite like it.
 
 ### Creating and Manipulating Objects
-Say you want to login with `John Doe` but you can't because there is no player object. If you look at `oni.erl` and the `init` function you'll see how you can do this but here's a quick rundown.
+Say you want to login with `Monster` but you can't because there is no player object that corresponds to that player name. Below is a step by step guide on how to create a new player object and logging in connecting to it.
 
-Boot an Erlang shell with the `oni/ebin` files. Make sure they are built, something like this:
+Start with booting an Erlang shell with the `oni/ebin` files. Make sure they are built, with something like this:
 
     > cd oni
     > ./make.ps1
@@ -93,7 +93,6 @@ Now from your Erlang shell you should see something like this:
     Eshell V5.10.3  (abort with ^G)
     1> 
 
-#### Boot Oni
 Boot oni by executing `oni:init()`, it looks like this in the prompt:
 
     1> oni:init()
@@ -120,6 +119,34 @@ Make sure that is `true`. We can check if this object is valid:
 
     5> object:valid(Obj3).
     true
+
+Ok, after all those sanity checks, we have this valid object but it's not a player object yet. For that we have to set the `player` flag:
+
+    6> object:set_player_flag(Obj3, true).
+    ok
+
+We are not done yet. Each object has some builtin properties. One of them is `name`. Before we can login, making a connection to a known object, we need to assign it a name:
+
+    7> object:set_property(Obj3, <<"name">>, "Monster").
+    ok
+
+Let's double check it worked, we can ask for the `name` property value:
+
+    8> object:get_property(Obj3, <<"name">>).
+    "Monster"
+
+That seems fine. Now this object is `player` and it has a `name` so let's try logging in. Start up a telnet client and connect to `127.0.0.1:7777` (if you have the default settings):
+
+    Oni - Steampunk Dreams
+
+    Welcome! Please login.
+
+Now try to login with your new `player` object:
+
+    connect Monster
+    *** Connected (Monster) ***
+
+It should say `*** Connected (Monster) ***`. If it doesn't say that you either get nothing or some horrible pile of damage. Either way, don't freak - it's probably something simple but Erlang can blow up in spectacular ways.
 
 There's a lot of more stuff we can do with objects but if you can follow along this far you should be able to figure out the rest of the API unless the lack of documentation. More to come though.
 
