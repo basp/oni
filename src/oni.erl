@@ -8,6 +8,8 @@
 
 -include_lib("include/builtins.hrl").
 
+-define(DEFAULT_PORT, 7777).
+
 init() ->
     %% We'll need mnesia for our objects, juse memory table for now
     mnesia:start(),
@@ -36,10 +38,10 @@ init() ->
     
     %% This will hold active connections so we can find
     %% sockets by object id, no need for mnesia here
-    ets:new(connections, [named_table]),
+    ets:new(connections, [named_table, public]),
     
     %% Finally, start up our listener
-    tcp_server:start_link(7777),
+    tcp_server:start_link(?DEFAULT_PORT),
 
     %% Made it!
     ok.

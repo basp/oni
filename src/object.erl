@@ -145,7 +145,9 @@ set_property(Object, Name, Value) ->
                     false -> 'E_PROPNF';
                     _Found ->
                         Props = lists:map(MapFun, O#object.properties),
-                        mnesia:dirty_write(object, O#object{properties = Props}),
+                        mnesia:dirty_write(
+                            object, 
+                            O#object{properties = Props}),
                         ok            
                 end
         end;

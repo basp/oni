@@ -43,22 +43,24 @@ handle_login(Socket) ->
             Argstr = string:join(Args, " "),
             case {Cmd, Args} of 
                 {"connect", [Username|_]} -> 
-                    error_logger:info_msg("Username: [~p]", [Username]),
                     case authorize(Username) of
                         false ->
-                            gen_tcp:send(Socket, <<"Mmmm. That doesn't seem right.\n">>),
+                            log_attempt(Cmd, Args, Argstr, Peer),
+                            gen_tcp:send(
+                                Socket,
+                                <<"Mmmm. That doesn't seem right.\n">>),
                             handle_login(Socket);
                         Player ->
-                            %% ets:insert(connections, {Player, {<<"foo">>}}),
+                            ets:insert(connections, {Player, {Socket, Peer}}),
                             Name = object:get_property(Player, ?NAME),
-                            Msg = io_lib:format("*** Connected (~s) ***~n", [Name]),
+                            Msg = io_lib:format(
+                                "*** Connected (~s) ***~n", 
+                                [Name]),
                             gen_tcp:send(Socket, Msg),
                             handle({Socket, Peer})
                     end;
                 _Other ->
-                    error_logger:info_msg(
-                        "Login attempt with ~p from ~p~n", 
-                        [{Cmd, Args, Argstr}, Peer]),
+                    log_attempt(Cmd, Args, Argstr, Peer),
                     gen_tcp:send(Socket, <<"That would never work.\n">>),
                     handle_login(Socket)
             end;
@@ -96,3 +98,8 @@ authorize(Username) ->
         false -> false;
         Player -> Player
     end.
+
+log_attempt(Cmd, Args, Argstr, Peer) ->
+    error_logger:info_msg(
+        "Login attempt with ~p from ~p~n", 
+        [{Cmd, Args, Argstr}, Peer]).
