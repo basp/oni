@@ -77,7 +77,53 @@ After connecting with your telnet client the Erlang server shell should output t
 
 Or someething quite like it.
 
-### Notes
+### Creating and Manipulating Objects
+Say you want to login with `John Doe` but you can't because there is no player object. If you look at `oni.erl` and the `init` function you'll see how you can do this but here's a quick rundown.
+
+Boot an Erlang shell with the `oni/ebin` files. Make sure they are built, something like this:
+
+    > cd oni
+    > ./make.ps1
+    > werl -pa ebin
+
+Now from your Erlang shell you should see something like this:
+
+    Erlang R16B02 (erts-5.10.3) [smp:4:4] [async-threads:10]
+
+    Eshell V5.10.3  (abort with ^G)
+    1> 
+
+#### Boot Oni
+Boot oni by executing `oni:init()`, it looks like this in the prompt:
+
+    1> oni:init()
+    ok
+    2>
+
+The `ok` tells us that everything is fine. We now have `oni` running. We can create a new object easily:
+
+    2> object:create(nothing).
+    3
+    3>
+
+So we got `3` from that. It's the object identifier of our newly created object. Let's remember this value:
+
+    3> Obj3 = v(2).
+    3
+
+That is `Obj3`. Make sure we are on the same page:
+
+    4> Obj3 =:= 3.
+    true
+
+Make sure that is `true`. We can check if this object is valid:
+
+    5> object:valid(Obj3).
+    true
+
+There's a lot of more stuff we can do with objects but if you can follow along this far you should be able to figure out the rest of the API unless the lack of documentation. More to come though.
+
+### Final Notes
 Basic interaction might not seem like much but the login seems pretty solid. You can try to enter bullshit and it will print back some kind of meaningful message. Yes, there is a secuirty risk by having a different message for unknown command and unknown login results but it's convenient for debugging and we are not a security agency anyway.
 
 Also, from a server point of view we can observe client states of connecting and disconnecting which are most important to us right now.
