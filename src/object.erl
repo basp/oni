@@ -2,20 +2,77 @@
 -compile(export_all).
 
 -include_lib("include/records.hrl").
+-include_lib("stdlib/include/qlc.hrl").
 
 init_db() ->
     mnesia:create_table(object, [{attributes, record_info(fields, object)}]).
 
 create(Parent) ->
     {ok, Id} = id_gen:next(),
-    O = #object{id = Id, name = "", location = nothing, parent = Parent},
+    O = #object{id = Id, parent = Parent},
     ok = mnesia:dirty_write(object, O),
     Id.
 
+chparent(Object, NewParent) ->
+    case mnesia:dirty_read(object, Object) of
+        [O] -> mnesia:dirty_write(object, O#object{parent = NewParent}), ok;
+        [] -> 'E_INVARG'
+    end.
+
+chowner(Object, NewOwner) ->
+    case mnesia:dirty_read(object, Object) of
+        [O] -> mnesia:dirty_write(object, O#object{owner = NewOwner}), ok;
+        [] -> 'E_INVARG'
+    end.
+
 valid(Object) ->
     case mnesia:dirty_read(object, Object) of
-        [_O|_] -> true;
+        [_O] -> true;
         [] -> false
+    end.
+
+parent(Object) ->
+    case mnesia:dirty_read(object, Object) of
+        [O] -> O#object.parent;
+        [] -> 'E_INVARG'
+    end.
+
+children(Object) ->
+    Q = qlc:q([O#object.id || O <- mnesia:table(object), O#object.parent =:= Object]),
+    F = fun() -> qlc:e(Q) end,
+    case mnesia:dirty_read(object, Object) of
+        [_O] -> 
+            {atomic, R} = mnesia:transaction(F), R;
+        [] when Object =:= nothing -> 
+            {atomic, R} = mnesia:transaction(F), R;
+        [] -> 'E_INVARG'
+    end.
+
+contents(Object) ->
+    Q = qlc:q([O#object.id || O <- mnesia:table(object), O#object.location =:= Object]),
+    F = fun() -> qlc:e(Q) end,
+    case mnesia:dirty_read(object, Object) of
+        [_O] -> {atomic, R} = mnesia:transaction(F), R;
+        [] -> 'E_INVARG'
+    end.
+
+recycle(Object) ->
+    case mnesia:dirty_read(object, Object) of
+        [O] ->
+            Children = children(Object),
+            F = fun(C) -> chparent(C, O#object.parent) end,
+            lists:foreach(F, Children),
+            mnesia:dirty_delete(object, Object),
+            ok;
+        [] -> 'E_INVARG'
+    end.
+
+move(What, Where) ->
+    case mnesia:dirty_read(object, What) of
+        [O] ->
+            mnesia:dirty_write(object, O#object{location = Where}),
+            ok;
+        [] -> 'E_INVARG'
     end.
 
 properties(Object) ->
@@ -47,12 +104,31 @@ set_property(Object, Name, Value) ->
     end,
     case mnesia:dirty_read(object, Object) of
         [O] ->
-            case lists:keyfind(Name, 2, O#object.properties) of
-                false -> 'E_PROPNF';
-                _Found ->
-                    Props = lists:map(MapFun, O#object.properties),
-                    mnesia:dirty_write(object, O#object{properties = Props}),
-                    ok            
+            case Name of
+                "name" -> 
+                    mnesia:dirty_write(object, O#object{name = Value}), ok;
+                "location" -> 
+                    mnesia:dirty_write(object, O#object{location = Value}), ok;
+                "owner" -> 
+                    mnesia:dirty_write(object, O#object{owner = Value}), ok;
+                "wizard" -> 
+                    mnesia:dirty_write(object, set_flag(O, 2#10000, Value)), ok;
+                "programmer" -> 
+                    mnesia:dirty_write(object, set_flag(O, 2#01000, Value)), ok;
+                "r" -> 
+                    mnesia:dirty_write(object, set_flag(O, 2#00100, Value)), ok;
+                "w" ->
+                    mnesia:dirty_write(object, set_flag(O, 2#00010, Value)), ok;
+                "f" ->
+                    mnesia:dirty_write(object, set_flag(O, 2#00001, Value)), ok;
+                _Other ->
+                    case lists:keyfind(Name, 2, O#object.properties) of
+                        false -> 'E_PROPNF';
+                        _Found ->
+                            Props = lists:map(MapFun, O#object.properties),
+                            mnesia:dirty_write(object, O#object{properties = Props}),
+                            ok            
+                    end
             end;
         [] -> 'E_INVARG'
     end.
@@ -74,11 +150,37 @@ delete_property(Object, Name) ->
 get_property(Object, Name) ->
     case mnesia:dirty_read(object, Object) of
         [O] ->
-            case lists:keyfind(Name, 2, O#object.properties) of
-                false -> 'E_PROPNF';
-                #property{name = Name, value = Value} -> Value
+            case Name of 
+                "name" -> 
+                    O#object.name;
+                "location" -> 
+                    O#object.location;
+                "owner" -> 
+                    O#object.owner;
+                "wizard" -> 
+                    O#object.flags band 2#10000 =:= 2#10000;
+                "programmer" -> 
+                    O#object.flags band 2#01000 =:= 2#01000;
+                "r" -> 
+                    O#object.flags band 2#00100 =:= 2#00100;
+                "w" -> 
+                    O#object.flags band 2#00010 =:= 2#00010;
+                "f" -> 
+                    O#object.flags band 2#00001 =:= 2#00001;
+                _Other ->
+                    case lists:keyfind(Name, 2, O#object.properties) of
+                        false -> 'E_PROPNF';
+                        #property{name = Name, value = Value} -> Value
+                    end
             end;
         [] -> 'E_INVARG'
     end.
 
 %% Internal functions
+set_flag(O, Flag, Value) ->
+    OldFlags = O#object.flags,
+    NewFlags = case Value of
+        true -> OldFlags bor Flag;
+        _Other -> OldFlags band (bnot Flag)
+    end,
+    O#object{flags = NewFlags}.
