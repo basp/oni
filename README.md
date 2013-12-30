@@ -146,7 +146,7 @@ Now try to login with your new `player` object:
     connect Monster
     *** Connected (Monster) ***
 
-It should say `*** Connected (Monster) ***`. If it doesn't say that you either get nothing or some horrible pile of damage. Either way, don't freak - it's probably something simple but Erlang can blow up in spectacular ways.
+It should say `*** Connected (Monster) ***`. If it doesn't say that you either get nothing or some horrible pile of damage (in your server shell probably). Either way, don't freak - it's probably something simple but Erlang can blow up in spectacular ways.
 
 There's a lot of more stuff we can do with objects but if you can follow along this far you should be able to figure out the rest of the API unless the lack of documentation. More to come though.
 
