@@ -1,3 +1,9 @@
+%%%----------------------------------------------------------------------------
+%%% @author Bas Pennings [http://themeticulousgeek.com/]
+%%% @copyright 2013 TMG
+%%% @end
+%%%----------------------------------------------------------------------------
+
 %% Builtin properties
 -define(NAME,               <<"name">>).
 -define(LOCATION,           <<"location">>).
