@@ -78,9 +78,7 @@ recycle(Object) ->
 
 move(What, Where) ->
     case mnesia:dirty_read(object, What) of
-        [O] ->
-            mnesia:dirty_write(object, O#object{location = Where}),
-            ok;
+        [O] -> mnesia:dirty_write(object, O#object{location = Where}), ok;
         [] -> 'E_INVARG'
     end.
 
@@ -92,55 +90,53 @@ properties(Object) ->
 
 add_property(Object, Name, Value) ->
     case mnesia:dirty_read(object, Object) of
-        [O] ->
-            case lists:keyfind(Name, 2, O#object.properties) of
-                false ->
-                    P = #property{name = Name, value = Value},
-                    Props = [P|O#object.properties],
-                    mnesia:dirty_write(object, O#object{properties = Props}),
-                    ok;
-                _Found -> 'E_INVARG'
-            end;
+        [O] -> case lists:keyfind(Name, 2, O#object.properties) of
+            false ->
+                P = #property{name = Name, value = Value},
+                Props = [P|O#object.properties],
+                mnesia:dirty_write(object, O#object{properties = Props}),
+                ok;
+            _Found -> 'E_INVARG'
+        end;
         [] -> 'E_INVARG'
     end.
 
 set_property(Object, Name, Value) ->
     case mnesia:dirty_read(object, Object) of
-        [O] ->
-            case Name of
-                "name" -> 
-                    mnesia:dirty_write(object, O#object{name = Value}), ok;
-                "location" -> 
-                    mnesia:dirty_write(object, O#object{location = Value}), ok;
-                "owner" -> 
-                    mnesia:dirty_write(object, O#object{owner = Value}), ok;
-                "wizard" -> 
-                    mnesia:dirty_write(object, set_flag(O, ?WIZARD_FLAG, Value)), ok;
-                "programmer" -> 
-                    mnesia:dirty_write(object, set_flag(O, ?PROGRAMMER_FLAG, Value)), ok;
-                "r" -> 
-                    mnesia:dirty_write(object, set_flag(O, ?READ_FLAG, Value)), ok;
-                "w" ->
-                    mnesia:dirty_write(object, set_flag(O, ?WRITE_FLAG, Value)), ok;
-                "f" ->
-                    mnesia:dirty_write(object, set_flag(O, ?FERTILE_FLAG, Value)), ok;
-                "player" ->
-                    mnesia:dirty_write(object, set_flag(O, ?PLAYER_FLAG, Value)), ok;
-                _Other ->
-                    MapFun = fun(P) ->
-                        case P#property.name =:= Name of
-                            true -> P#property{value = Value};
-                            false -> P
-                        end
-                    end,
-                    case lists:keyfind(Name, 2, O#object.properties) of
-                        false -> 'E_PROPNF';
-                        _Found ->
-                            Props = lists:map(MapFun, O#object.properties),
-                            mnesia:dirty_write(object, O#object{properties = Props}),
-                            ok            
+        [O] -> case Name of
+            "name" -> 
+                mnesia:dirty_write(object, O#object{name = Value}), ok;
+            "location" -> 
+                mnesia:dirty_write(object, O#object{location = Value}), ok;
+            "owner" -> 
+                mnesia:dirty_write(object, O#object{owner = Value}), ok;
+            "wizard" -> 
+                mnesia:dirty_write(object, set_flag(O, ?WIZARD_FLAG, Value)), ok;
+            "programmer" -> 
+                mnesia:dirty_write(object, set_flag(O, ?PROGRAMMER_FLAG, Value)), ok;
+            "r" -> 
+                mnesia:dirty_write(object, set_flag(O, ?READ_FLAG, Value)), ok;
+            "w" ->
+                mnesia:dirty_write(object, set_flag(O, ?WRITE_FLAG, Value)), ok;
+            "f" ->
+                mnesia:dirty_write(object, set_flag(O, ?FERTILE_FLAG, Value)), ok;
+            "player" ->
+                mnesia:dirty_write(object, set_flag(O, ?PLAYER_FLAG, Value)), ok;
+            _Other ->
+                MapFun = fun(P) ->
+                    case P#property.name =:= Name of
+                        true -> P#property{value = Value};
+                        false -> P
                     end
-            end;
+                end,
+                case lists:keyfind(Name, 2, O#object.properties) of
+                    false -> 'E_PROPNF';
+                    _Found ->
+                        Props = lists:map(MapFun, O#object.properties),
+                        mnesia:dirty_write(object, O#object{properties = Props}),
+                        ok            
+                end
+        end;
         [] -> 'E_INVARG'
     end.
 
@@ -160,32 +156,31 @@ delete_property(Object, Name) ->
 
 get_property(Object, Name) ->
     case mnesia:dirty_read(object, Object) of
-        [O] ->
-            case Name of 
-                "name" -> 
-                    O#object.name;
-                "location" -> 
-                    O#object.location;
-                "owner" -> 
-                    O#object.owner;
-                "wizard" -> 
-                    is_flag_set(O, ?WIZARD_FLAG);
-                "programmer" -> 
-                    is_flag_set(O, ?PROGRAMMER_FLAG);
-                "r" -> 
-                    is_flag_set(O, ?READ_FLAG);
-                "w" -> 
-                    is_flag_set(O, ?WRITE_FLAG);
-                "f" -> 
-                    is_flag_set(O, ?FERTILE_FLAG);
-                "player" ->
-                    is_flag_set(O, ?PLAYER_FLAG);
-                _Other ->
-                    case lists:keyfind(Name, 2, O#object.properties) of
-                        false -> 'E_PROPNF';
-                        #property{name = Name, value = Value} -> Value
-                    end
-            end;
+        [O] -> case Name of 
+            "name" -> 
+                O#object.name;
+            "location" -> 
+                O#object.location;
+            "owner" -> 
+                O#object.owner;
+            "wizard" -> 
+                is_flag_set(O, ?WIZARD_FLAG);
+            "programmer" -> 
+                is_flag_set(O, ?PROGRAMMER_FLAG);
+            "r" -> 
+                is_flag_set(O, ?READ_FLAG);
+            "w" -> 
+                is_flag_set(O, ?WRITE_FLAG);
+            "f" -> 
+                is_flag_set(O, ?FERTILE_FLAG);
+            "player" ->
+                is_flag_set(O, ?PLAYER_FLAG);
+            _Other ->
+                case lists:keyfind(Name, 2, O#object.properties) of
+                    false -> 'E_PROPNF';
+                    #property{name = Name, value = Value} -> Value
+                end
+        end;
         [] -> 'E_INVARG'
     end.
 

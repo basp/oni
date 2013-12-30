@@ -67,11 +67,9 @@ handle_login(Socket) ->
 handle({Socket, Peer}) ->
     inet:setopts(Socket, [{active, once}]),
     receive
-        %%{tcp, Socket, <<"quit", _/binary>>} ->
-        %%   gen_tcp:close(Socket);
-        %%{tcp, Socket, <<"foo", _/binary>>} ->
-        %%    spawn(fun() -> test:foo(Socket) end),
-        %%    handle(Socket);
+        {tcp, Socket, <<"@quit", _/binary>>} ->
+            gen_tcp:send(Socket, <<"Bye!\n">>),
+            gen_tcp:close(Socket);
         {tcp, Socket, Msg} ->
             gen_tcp:send(Socket, Msg),
             handle({Socket, Peer});

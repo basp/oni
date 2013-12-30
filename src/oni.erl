@@ -19,4 +19,6 @@ init() ->
     object:set_property(Wizard, "wizard", true),
     object:set_property(Wizard, "programmer", true),
     object:move(Wizard, Room),
+    ets:new(connection, [named_table]),
+    tcp_server:start_link(7777),
     ok.
