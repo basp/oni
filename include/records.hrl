@@ -1,0 +1,2 @@
+-record(object, {id, name, location, parent, properties = []}).
+-record(property, {name, value}).
