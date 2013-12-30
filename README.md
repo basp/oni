@@ -5,15 +5,15 @@ Oni is an experiment to see how feasible it is to write a LambaMOO server in Erl
 During development of Aki it became quite clear that a lot of effort was put into a somewhat compatible LambdaMOO VM. To that end, Aki was built around a byte code interpreter that was heavily inspired by the original by Pavel Curtis. All this effort was quite interresting from an implementation point of view but did raise the question: isn't there an easier way? 
 
 ### Vision
-It turns out there might be an easier way. The main use case for implementing a custom VM is to be able to load and change code while the server is running. We want to have people building the game and people playing the game at the same time. Our MOO would be useless if we would have to stop and restart the server for any code change. Erlang is quite capable of changing code on the fly.
+It turns out there might be an easier way. The main use case for implementing a custom VM is to be able to load and change code while the server is running. We want to have people building the game and people playing the game at the same time. Our MOO would be useless if we would have to stop and restart the server for every code change. Erlang is quite capable of changing code on the fly.
 
-Of course, LambdaMOO is also attractive for game programming because it features a very solid object oriented programming environment. It shouldn't be too hard to provide similar object features with a functional language running underneath. Especially not with Erlang and Mnesia for storage.
+LambdaMOO is also attractive for game programming because it features a very solid object oriented programming environment that is quite elegant. It shouldn't be too hard to provide similar object features with a functional language engine. Especially not with Erlang and Mnesia for storage.
 
 ## What's Here
 Oni is not really useful yet but you can boot up the server and have some kind of interaction with it. The things that are implemented right now are basically there to get a feel for how to design and implement the fundamental interactions between the main components of the system (player service, object database and tasks). 
 
 ### Setup
-Note that everything belows you are using PowerShell. If you are not, I'm quite sure you can figure this out anyway (the commands might not match but the procedure is still the same).
+Note that everything below assumes you are using PowerShell. If you are not, I'm quite sure you can figure this out anyway (the commands might not match but the procedure is still the same).
 
 Make sure your <code>erl/bin</code> is in your path. The clone the code into a directory of your choice:
 
@@ -77,4 +77,8 @@ Also, from a server point of view we can observe client states of connecting and
 
 Next step is to have a runtime process that will execute '''verbs''' that are executed by players. Eventually we might be able to program the login sequence using Oni itself instead of the kind of hacks that we have now.
 
-Oni uses an object database that is facilitated by mnesia and consists of a single table. The structure of Oni objects can be found in the `include/records.hrl` file. It is really quite simple.
+Oni uses an object database that is facilitated by Mnesia and consists of a single table. The structure of Oni objects can be found in the `include/records.hrl` file. It is really quite simple.
+
+For now, we are storing Oni objects as a single Erlang term in Mnesia. Currenty, we are only have memory tables and are `dirty_read` and `dirty_write` as much as we can. We are using `qlc` for selections so we have to do those in transactions but every other object query should be dirty if possible. This is because we are going to execute `program` objecjts synchronously anyway via a `rt` process (todo). 
+
+This means that all tasks from all actors will be queued up to a central process. Yes, this will be a huge bottleneck but if we don't do this it will be a nightmare to synchronize everything and still keep a consistent outcome for all participants involved. Just the simple thing of two players executing a `get` action on the same object is involved. If we don't synchronize these actions we essentially put the burden of synchronizing everything on the `action` and `verb` implementors. I don't think that's the way to go. We just have to make sure our `programs` are effecient.
