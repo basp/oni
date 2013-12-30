@@ -36,7 +36,7 @@ init() ->
     
     %% This will hold active connections so we can find
     %% sockets by object id, no need for mnesia here
-    ets:new(connection, [named_table]),
+    ets:new(connections, [named_table]),
     
     %% Finally, start up our listener
     tcp_server:start_link(7777),

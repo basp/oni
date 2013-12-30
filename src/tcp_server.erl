@@ -43,12 +43,13 @@ handle_login(Socket) ->
             Argstr = string:join(Args, " "),
             case {Cmd, Args} of 
                 {"connect", [Username|_]} -> 
+                    error_logger:info_msg("Username: [~p]", [Username]),
                     case authorize(Username) of
                         false ->
                             gen_tcp:send(Socket, <<"Mmmm. That doesn't seem right.\n">>),
                             handle_login(Socket);
                         Player ->
-                            ets:insert(Player, {Socket, Peer}),
+                            %% ets:insert(connections, {Player, {<<"foo">>}}),
                             Name = object:get_property(Player, ?NAME),
                             Msg = io_lib:format("*** Connected (~s) ***~n", [Name]),
                             gen_tcp:send(Socket, Msg),

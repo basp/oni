@@ -200,10 +200,10 @@ get_property(Object, Name) ->
 %%% Operations on player objects
 %%%============================================================================
 set_player_flag(O, Value) ->
-    set_property(O, "player", Value).
+    set_property(O, ?PLAYER, Value).
 
 is_player(O) ->
-    get_property(O, "player").
+    get_property(O, ?PLAYER).
 
 players() ->
     Q = qlc:q([O#object.id || 
@@ -211,6 +211,16 @@ players() ->
     F = fun() -> qlc:e(Q) end,
     {atomic, R} = mnesia:transaction(F),
     R.
+
+new_connection(Object, Data) ->
+    ets:insert(connections, {Object, Data}),
+    ok.
+
+get_connection(Object) ->
+    case ets:lookup(connections, Object) of
+        [Data|_] -> Data;
+        [] -> false
+    end.
 
 %%%============================================================================
 %%% Internal functions
