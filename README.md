@@ -15,7 +15,7 @@ Oni is not really useful yet but you can boot up the server and have some kind o
 ### Setup
 Note that everything below assumes you are using PowerShell. If you are not, I'm quite sure you can figure this out anyway (the commands might not match but the procedure is still the same).
 
-Make sure your <code>erl/bin</code> is in your path. The clone the code into a directory of your choice:
+Make sure your <code>erl/bin</code> is in your path. Then, clone the code into a directory of your choice:
 
     > git clone https://github.com/basp/oni.git
     > cd oni
