@@ -7,27 +7,8 @@
 -compile(export_all).
 
 -include_lib("include/records.hrl").
+-include_lib("include/builtins.hrl").
 -include_lib("stdlib/include/qlc.hrl").
-
-%% Builtin properties
--define(NAME,               <<"name">>).
--define(LOCATION,           <<"location">>).
--define(PARENT,             <<"parent">>).
--define(OWNER,              <<"owner">>).
--define(PLAYER,             <<"player">>).
--define(WIZARD,             <<"wizard">>).
--define(PROGRAMMER,         <<"programmer">>).
--define(READ,               <<"r">>).
--define(WRITE,              <<"w">>).
--define(FERTILE,            <<"f">>).
-
-%% Flags for (some) builtin properites
--define(WIZARD_FLAG,        2#100000).
--define(PROGRAMMER_FLAG,    2#010000).
--define(READ_FLAG,          2#001000).
--define(WRITE_FLAG,         2#000100).
--define(FERTILE_FLAG,       2#000010).
--define(PLAYER_FLAG,        2#000001).
 
 %% Called from oni:init, move this somewhere more appropriate.
 init_db() ->
@@ -244,3 +225,12 @@ set_flag(O, Flag, Value) ->
 
 is_flag_set(O, Flag) ->
     O#object.flags band Flag =:= Flag.
+
+notify(Conn, Msg) ->
+    case ets:lookup(Conn) of
+        [{Socket, _Peer}] -> 
+            Msg = io_lib:format("Notify: ~s~n", [Msg]),
+            gen_tcp:send(Socket, Msg),
+            ok;
+        [] -> ok
+    end.

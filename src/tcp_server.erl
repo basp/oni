@@ -5,6 +5,8 @@
 %%%----------------------------------------------------------------------------
 -module(tcp_server).
 
+-include_lib("include/builtins.hrl").
+
 %% API
 -export([start_link/1]).
 
@@ -46,7 +48,8 @@ handle_login(Socket) ->
                             gen_tcp:send(Socket, <<"Mmmm. That doesn't seem right.\n">>),
                             handle_login(Socket);
                         Player ->
-                            Name = object:get_property(Player, "name"),
+                            ets:insert(Player, {Socket, Peer}),
+                            Name = object:get_property(Player, ?NAME),
                             Msg = io_lib:format("*** Connected (~s) ***~n", [Name]),
                             gen_tcp:send(Socket, Msg),
                             handle({Socket, Peer})
@@ -87,7 +90,7 @@ first(Pred, List) ->
 
 authorize(Username) ->
     Players = object:players(),
-    Pred = fun(X) -> object:get_property(X, "name") =:= Username end,
+    Pred = fun(X) -> object:get_property(X, <<"name">>) =:= Username end,
     case first(Pred, Players) of
         false -> false;
         Player -> Player
