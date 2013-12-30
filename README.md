@@ -105,7 +105,7 @@ The `ok` tells us that everything is fine. We now have `oni` running. We can cre
     3
     3>
 
-So we got `3` from that. It's the object identifier of our newly created object. Let's remember this value:
+The `nothing` argument is the value of the `parent` property for our new object. In this case, we just specify `nothing` which means it is a '''root''' object; it has no parent. The result from call the `object:create` function is `3`. This is the object id of our newly created object. Let's remember this value:
 
     3> Obj3 = v(2).
     3
@@ -124,6 +124,13 @@ Ok, after all those sanity checks, we have this valid object but it's not a play
 
     6> object:set_player_flag(Obj3, true).
     ok
+
+The `player` flag is kinda special but you can also set it like any other property:
+
+    6> object:set_property(Obj3, <<"player">>, true).
+    ok
+
+By the way, remember you can inspect your objects at any time by using the table viewer. We are just using Mnesia for our storage and ETS for our active connections. For our connections in ETS we use the `connections` table. Our storage for objects in Mnesia is a single table and it's called `object`. Try booting up the ''table viewer'' (`tv:start()`) and inspect the tables. You can switch which kind of tables you want to view using the menu.
 
 We are not done yet. Each object has some builtin properties. One of them is `name`. Before we can login, making a connection to a known object, we need to assign it a name:
 
