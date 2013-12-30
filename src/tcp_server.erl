@@ -31,6 +31,39 @@ acceptor(ListenSocket) ->
     gen_tcp:send(Socket, MOTD),
     handle_login(Socket).
 
+handle_login(Socket) ->
+    inet:setopts(Socket, [{active, once}]),
+    receive
+        {tcp, Socket, Request} -> 
+            {ok, Peer} = inet:peername(Socket),
+            Line = binary_to_list(Request),
+            [Cmd|Args] = string:tokens(Line, " \r\n"), % Handle all WS here
+            Argstr = string:join(Args, " "),
+            case {Cmd, Args} of 
+                {"connect", [Username|_]} -> 
+                    case authorize(Username) of
+                        false ->
+                            gen_tcp:send(Socket, <<"Mmmm. That doesn't seem right.\n">>),
+                            handle_login(Socket);
+                        Player ->
+                            Name = object:get_property(Player, "name"),
+                            Msg = io_lib:format("*** Connected (~s) ***~n", [Name]),
+                            gen_tcp:send(Socket, Msg),
+                            handle({Socket, Peer})
+                    end;
+                _Other ->
+                    error_logger:info_msg(
+                        "Login attempt with ~p from ~p~n", 
+                        [{Cmd, Args, Argstr}, Peer]),
+                    gen_tcp:send(Socket, <<"That would never work.\n">>),
+                    handle_login(Socket)
+            end;
+        {tcp_closed, Socket} ->
+            error_logger:info_msg(
+                "Client ~p disconnected (from login)~n", 
+                [Socket])
+    end.
+
 handle({Socket, Peer}) ->
     inet:setopts(Socket, [{active, once}]),
     receive
@@ -48,30 +81,16 @@ handle({Socket, Peer}) ->
             error_logger:info_msg("Received junk: ~p~n", [Junk])
     end.
 
-handle_login(Socket) ->
-    inet:setopts(Socket, [{active, once}]),
-    receive
-        {tcp, Socket, Msg} -> 
-            {ok, Peer} = inet:peername(Socket),
-            Line = binary_to_list(Msg),
-            [Cmd|Args] = string:tokens(Line, " \r\n"), % Handle all WS here
-            Argstr = string:join(Args, " "),
-            case Cmd of 
-                "connect" -> 
-                    handle({Socket, Peer});
-                _Other ->
-                    error_logger:info_msg(
-                        "Login attempt with ~p from ~p~n", 
-                        [{Cmd, Args, Argstr}, Peer]),
-                    gen_tcp:send(Socket, <<"That would never work.\n">>),
-                    handle_login(Socket)
-            end;
-        {tcp_closed, Socket} ->
-            error_logger:info_msg(
-                "Client ~p disconnected (from login)~n", 
-                [Socket])
+first(Pred, List) ->
+    case lists:dropwhile(fun(X) -> not Pred(X) end, List) of
+        [] -> false;
+        [X|_] -> X
     end.
 
-
-
-%% tcp_server:start_link(7777).
+authorize(Username) ->
+    Players = object:players(),
+    Pred = fun(X) -> object:get_property(X, "name") =:= Username end,
+    case first(Pred, Players) of
+        false -> false;
+        Player -> Player
+    end.

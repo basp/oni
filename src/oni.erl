@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------------
+%%% @author Bas Pennings [http://themeticulousgeek.com/]
+%%% @copyright 2013 TMG
+%%% @end
+%%%----------------------------------------------------------------------------
 -module(oni).
 -compile(export_all).
 
@@ -6,6 +11,12 @@ init() ->
     id_gen:start_link(),
     object:init_db(),
     Root = object:create(nothing),
-    Obj1 = object:create(Root),
-    object:add_property(Obj1, "description", nothing),
+    Room = object:create(Root),
+    Wizard = object:create(Root),
+    object:set_property(Room, "name", "The First Room"),
+    object:set_property(Wizard, "name", "Wizard"),
+    object:set_player_flag(Wizard, true),
+    object:set_property(Wizard, "wizard", true),
+    object:set_property(Wizard, "programmer", true),
+    object:move(Wizard, Room),
     ok.

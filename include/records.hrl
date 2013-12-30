@@ -4,7 +4,7 @@
                  location = nothing, 
                  owner = nothing, 
                  properties = [],
-                 flags = 2#00000}).
+                 flags = 2#000000}).
 
 -record(property, {name, 
                    value}).
