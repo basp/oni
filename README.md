@@ -125,11 +125,12 @@ Ok, after all those sanity checks, we have this valid object but it's not a play
     6> object:set_player_flag(Obj3, true).
     ok
 
-The `player` flag is kinda special but you can also set it like any other property:
+The `player` flag is kinda special but (for now, this is likely to change in the future) you can also set it like any other property:
 
     6> object:set_property(Obj3, <<"player">>, true).
     ok
 
+#### Inspecting Objects
 By the way, remember you can inspect your objects at any time by using the table viewer. We are just using Mnesia for our storage and ETS for our active connections. For our connections in ETS we use the `connections` table. Our storage for objects in Mnesia is a single table and it's called `object`. Try booting up the ''table viewer'' (`tv:start()`) and inspect the tables. You can switch which kind of tables you want to view using the menu.
 
 We are not done yet. Each object has some builtin properties. One of them is `name`. Before we can login, making a connection to a known object, we need to assign it a name:

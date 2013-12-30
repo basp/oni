@@ -82,8 +82,6 @@ handle({Socket, Peer}) ->
             gen_tcp:send(Socket, <<"Bye!\n">>),
             gen_tcp:close(Socket);
         {tcp, Socket, Request} ->
-
-
             %% Echo
             gen_tcp:send(Socket, Request),
             handle({Socket, Peer});
