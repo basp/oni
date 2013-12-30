@@ -9,6 +9,19 @@
 -include_lib("include/records.hrl").
 -include_lib("stdlib/include/qlc.hrl").
 
+%% Builtin properties
+-define(NAME,               <<"name">>).
+-define(LOCATION,           <<"location">>).
+-define(PARENT,             <<"parent">>).
+-define(OWNER,              <<"owner">>).
+-define(PLAYER,             <<"player">>).
+-define(WIZARD,             <<"wizard">>).
+-define(PROGRAMMER,         <<"programmer">>).
+-define(READ,               <<"r">>).
+-define(WRITE,              <<"w">>).
+-define(FERTILE,            <<"f">>).
+
+%% Flags for (some) builtin properites
 -define(WIZARD_FLAG,        2#100000).
 -define(PROGRAMMER_FLAG,    2#010000).
 -define(READ_FLAG,          2#001000).
@@ -16,11 +29,12 @@
 -define(FERTILE_FLAG,       2#000010).
 -define(PLAYER_FLAG,        2#000001).
 
+%% Called from oni:init, move this somewhere more appropriate.
 init_db() ->
     mnesia:create_table(object, [{attributes, record_info(fields, object)}]).
 
 %%%============================================================================
-%%% API
+%%% Fundamental operations on objects
 %%%============================================================================
 create(Parent) ->
     {ok, Id} = id_gen:next(),
@@ -47,21 +61,14 @@ parent(Object) ->
     end.
 
 children(Object) ->
-    Q = qlc:q([O#object.id || O <- mnesia:table(object), O#object.parent =:= Object]),
+    Q = qlc:q([O#object.id || 
+        O <- mnesia:table(object), O#object.parent =:= Object]),
     F = fun() -> qlc:e(Q) end,
     case mnesia:dirty_read(object, Object) of
         [_O] -> 
             {atomic, R} = mnesia:transaction(F), R;
         [] when Object =:= nothing -> 
             {atomic, R} = mnesia:transaction(F), R;
-        [] -> 'E_INVARG'
-    end.
-
-contents(Object) ->
-    Q = qlc:q([O#object.id || O <- mnesia:table(object), O#object.location =:= Object]),
-    F = fun() -> qlc:e(Q) end,
-    case mnesia:dirty_read(object, Object) of
-        [_O] -> {atomic, R} = mnesia:transaction(F), R;
         [] -> 'E_INVARG'
     end.
 
@@ -76,9 +83,24 @@ recycle(Object) ->
         [] -> 'E_INVARG'
     end.
 
+%%%============================================================================
+%%% Object movement
+%%%============================================================================
 move(What, Where) ->
     case mnesia:dirty_read(object, What) of
         [O] -> mnesia:dirty_write(object, O#object{location = Where}), ok;
+        [] -> 'E_INVARG'
+    end.
+
+%%%============================================================================
+%%% Operations on properties
+%%%============================================================================
+contents(Object) ->
+    Q = qlc:q([O#object.id || 
+        O <- mnesia:table(object), O#object.location =:= Object]),
+    F = fun() -> qlc:e(Q) end,
+    case mnesia:dirty_read(object, Object) of
+        [_O] -> {atomic, R} = mnesia:transaction(F), R;
         [] -> 'E_INVARG'
     end.
 
@@ -104,24 +126,33 @@ add_property(Object, Name, Value) ->
 set_property(Object, Name, Value) ->
     case mnesia:dirty_read(object, Object) of
         [O] -> case Name of
-            "name" -> 
-                mnesia:dirty_write(object, O#object{name = Value}), ok;
-            "location" -> 
-                mnesia:dirty_write(object, O#object{location = Value}), ok;
-            "owner" -> 
-                mnesia:dirty_write(object, O#object{owner = Value}), ok;
-            "wizard" -> 
-                mnesia:dirty_write(object, set_flag(O, ?WIZARD_FLAG, Value)), ok;
-            "programmer" -> 
-                mnesia:dirty_write(object, set_flag(O, ?PROGRAMMER_FLAG, Value)), ok;
-            "r" -> 
-                mnesia:dirty_write(object, set_flag(O, ?READ_FLAG, Value)), ok;
-            "w" ->
-                mnesia:dirty_write(object, set_flag(O, ?WRITE_FLAG, Value)), ok;
-            "f" ->
-                mnesia:dirty_write(object, set_flag(O, ?FERTILE_FLAG, Value)), ok;
-            "player" ->
-                mnesia:dirty_write(object, set_flag(O, ?PLAYER_FLAG, Value)), ok;
+            ?NAME -> 
+                mnesia:dirty_write(object, O#object{name = Value}), 
+                ok;
+            ?LOCATION -> 
+                mnesia:dirty_write(object, O#object{location = Value}), 
+                ok;
+            ?OWNER -> 
+                mnesia:dirty_write(object, O#object{owner = Value}), 
+                ok;
+            ?WIZARD -> 
+                mnesia:dirty_write(object, set_flag(O, ?WIZARD_FLAG, Value)), 
+                ok;
+            ?PROGRAMMER -> 
+                mnesia:dirty_write(object, set_flag(O, ?PROGRAMMER_FLAG, Value)), 
+                ok;
+            ?READ -> 
+                mnesia:dirty_write(object, set_flag(O, ?READ_FLAG, Value)), 
+                ok;
+            ?WRITE ->
+                mnesia:dirty_write(object, set_flag(O, ?WRITE_FLAG, Value)), 
+                ok;
+            ?FERTILE ->
+                mnesia:dirty_write(object, set_flag(O, ?FERTILE_FLAG, Value)), 
+                ok;
+            ?PLAYER ->
+                mnesia:dirty_write(object, set_flag(O, ?PLAYER_FLAG, Value)), 
+                ok;
             _Other ->
                 MapFun = fun(P) ->
                     case P#property.name =:= Name of
@@ -157,23 +188,23 @@ delete_property(Object, Name) ->
 get_property(Object, Name) ->
     case mnesia:dirty_read(object, Object) of
         [O] -> case Name of 
-            "name" -> 
+            ?NAME -> 
                 O#object.name;
-            "location" -> 
+            ?LOCATION -> 
                 O#object.location;
-            "owner" -> 
+            ?OWNER -> 
                 O#object.owner;
-            "wizard" -> 
+            ?WIZARD -> 
                 is_flag_set(O, ?WIZARD_FLAG);
-            "programmer" -> 
+            ?PROGRAMMER -> 
                 is_flag_set(O, ?PROGRAMMER_FLAG);
-            "r" -> 
+            ?READ -> 
                 is_flag_set(O, ?READ_FLAG);
-            "w" -> 
+            ?WRITE -> 
                 is_flag_set(O, ?WRITE_FLAG);
-            "f" -> 
+            ?FERTILE -> 
                 is_flag_set(O, ?FERTILE_FLAG);
-            "player" ->
+            ?PLAYER ->
                 is_flag_set(O, ?PLAYER_FLAG);
             _Other ->
                 case lists:keyfind(Name, 2, O#object.properties) of
@@ -184,6 +215,9 @@ get_property(Object, Name) ->
         [] -> 'E_INVARG'
     end.
 
+%%%============================================================================
+%%% Operations on player objects
+%%%============================================================================
 set_player_flag(O, Value) ->
     set_property(O, "player", Value).
 
@@ -191,7 +225,8 @@ is_player(O) ->
     get_property(O, "player").
 
 players() ->
-    Q = qlc:q([O#object.id || O <- mnesia:table(object), is_flag_set(O, ?PLAYER_FLAG)]),
+    Q = qlc:q([O#object.id || 
+        O <- mnesia:table(object), is_flag_set(O, ?PLAYER_FLAG)]),
     F = fun() -> qlc:e(Q) end,
     {atomic, R} = mnesia:transaction(F),
     R.
