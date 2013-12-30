@@ -33,19 +33,23 @@ acceptor(ListenSocket) ->
     gen_tcp:send(Socket, MOTD),
     handle_login(Socket).
 
+tokenize(Request) ->
+    Line = binary_to_list(Request),
+    [Cmd|Args] = string:tokens(Line, " \r\n"), % Handle all WS here
+    Argstr = string:join(Args, " "),
+    {ok, {Cmd, Args, Argstr}}.
+
 handle_login(Socket) ->
     inet:setopts(Socket, [{active, once}]),
     receive
         {tcp, Socket, Request} -> 
             {ok, Peer} = inet:peername(Socket),
-            Line = binary_to_list(Request),
-            [Cmd|Args] = string:tokens(Line, " \r\n"), % Handle all WS here
-            Argstr = string:join(Args, " "),
+            {ok, {Cmd, Args, Argstr}} = tokenize(Request),
+            log_attempt(Cmd, Args, Argstr, Peer),
             case {Cmd, Args} of 
                 {"connect", [Username|_]} -> 
                     case authorize(Username) of
                         false ->
-                            log_attempt(Cmd, Args, Argstr, Peer),
                             gen_tcp:send(
                                 Socket,
                                 <<"Mmmm. That doesn't seem right.\n">>),
@@ -53,6 +57,7 @@ handle_login(Socket) ->
                         Player ->
                             ets:insert(connections, {Player, {Socket, Peer}}),
                             Name = object:get_property(Player, ?NAME),
+                            error_logger:info_msg("~s logged in from ~p~n", [Name, Peer]),
                             Msg = io_lib:format(
                                 "*** Connected (~s) ***~n", 
                                 [Name]),
@@ -76,8 +81,11 @@ handle({Socket, Peer}) ->
         {tcp, Socket, <<"@quit", _/binary>>} ->
             gen_tcp:send(Socket, <<"Bye!\n">>),
             gen_tcp:close(Socket);
-        {tcp, Socket, Msg} ->
-            gen_tcp:send(Socket, Msg),
+        {tcp, Socket, Request} ->
+
+
+            %% Echo
+            gen_tcp:send(Socket, Request),
             handle({Socket, Peer});
         {tcp_closed, Socket} ->
             error_logger:info_msg("Client ~p disconnected.~n", [Peer]);

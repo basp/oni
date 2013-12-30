@@ -70,6 +70,13 @@ You cannot do much at this point but you can login from your telnet client:
 
 At this point you are in an echo server so everything you type will be printed back to you. To disconnect you can type `@quit`.
 
+After connecting with your telnet client the Erlang server shell should output the following:
+
+    =INFO REPORT==== 30-Dec-2013::22:55:45 ===
+    Wizard logged in from {{127,0,0,1},56823}
+
+Or someething quite like it.
+
 ### Notes
 Basic interaction might not seem like much but the login seems pretty solid. You can try to enter bullshit and it will print back some kind of meaningful message. Yes, there is a secuirty risk by having a different message for unknown command and unknown login results but it's convenient for debugging and we are not a security agency anyway.
 
