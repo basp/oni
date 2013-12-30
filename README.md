@@ -145,7 +145,7 @@ Let's double check it worked, we can ask for the `name` property value:
 
 That seems fine. Now this object is `player` and it has a `name` so let's try logging in. Start up a telnet client and connect to `127.0.0.1:7777` (if you have the default settings):
 
-    Oni - Steampunk Dreams
+    Oni - Just a nugget
 
     Welcome! Please login.
 
