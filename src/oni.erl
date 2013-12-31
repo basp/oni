@@ -36,6 +36,9 @@ init() ->
     %% Move Wizard to the first (and only) room
     object:move(Wizard, Room),
     
+    %% Start up the runtime
+    rt:start_link(),
+
     %% This will hold active connections so we can find
     %% sockets by object id, no need for mnesia here
     ets:new(connections, [named_table, public]),

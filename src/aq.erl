@@ -28,24 +28,28 @@ loop(Queue) ->
         {From, {in, MFA}} -> 
             NewQueue = queue:in(MFA, Queue),
             case queue:is_empty(Queue) of
-                true -> execute(MFA), From ! ok;
+                true -> execute(self(), MFA), From ! ok;
                 false -> From ! queued
             end,
             loop(NewQueue);
         next ->
             {_Completed, NewQueue} = queue:out(Queue),
             case queue:peek(NewQueue) of
-                {value, MFA} -> execute(MFA), ok;
+                {value, MFA} -> execute(self(), MFA), ok;
                 empty -> ok
             end,
             loop(NewQueue);
         _Junk -> loop(Queue)
     end.
 
-execute(MFA) ->
-    error_logger:info_msg("Executing ~p~n", [MFA]),
+execute(Aq, MFA) ->
     F = fun() -> 
-        rt:execute(MFA), 
-        gen_server:cast(?MODULE, next) 
+        case rt:execute(MFA) of
+            {ok, {continue, Time, CMFA}} ->
+                timer:sleep(Time),
+                execute(Aq, CMFA),
+                ok;
+            _Other -> Aq ! next, ok
+        end
     end,
     spawn(F).

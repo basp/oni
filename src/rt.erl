@@ -21,7 +21,7 @@ start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 execute(MFA) ->
-    gen_server:cast(?SERVER, {execute, MFA}).
+    gen_server:call(?SERVER, {execute, MFA}).
 
 %%%============================================================================
 %%% gen_server callbacks
@@ -29,16 +29,13 @@ execute(MFA) ->
 init([]) ->
     {ok, []}.
 
+handle_call({execute, {M, F, A}}, _From, State) ->
+    R = apply(M, F, A),
+    {reply, {ok, R}, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
-handle_cast({execute, {M, F, A}}, State) ->
-    case apply(M, F, A) of
-        {continue, Time, MFA} -> 
-            timer:apply_after(Time, rt, execute, [MFA]), 
-            ok;
-        _Other -> ok
-    end,
+handle_cast(_Request, State) ->
     {noreply, State}.
 
 handle_info(_Info, State) ->
@@ -49,7 +46,3 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-%%%============================================================================
-%%% Internal functions
-%%%============================================================================
