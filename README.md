@@ -10,6 +10,9 @@ Compile everything from the `src` directory to the `ebin` directory with either 
 
 Next, startup Erlang referencing the `ebin` directory using `erl -pa ebin` (or `werl -pa ebin` if you are on Windows).
 
+## Important
+Currently there are no checks on who can evaluate expressions directly so every player can evaluate Erlang code with the `;` prefix. Keep this in mind if you put the listener on an public open port. Oni doesn't really care about flags or permissions just yet but it will eventually.
+
 ## Running
 In the Erlang shell, type `oni:init().` and all the moving parts of Oni will be initialized. 
 
@@ -52,6 +55,3 @@ But we need to set a name too otherwise we could never login:
     => ok
 
 At this point you can boot up another telnet client and `connect Mistress`. For fun, try executing `;tv:start().` from your telnet client (when connected). This will bootup the table viewer on the server! You can use the table viewer to view the ETS `connections` table that holds all the active players and their connections. Or you can use it to view the Mnesia `object` table to view all objects Oni knows about.
-
-### Important
-Currently there are no checks on who can evaluate expressions directly so every player can evaluate Erlang code with the `;` prefix. Keep this in mind if you put the listener on an public open port. Oni doesn't really care about flags or permissions just yet but it will eventually.
