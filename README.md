@@ -52,3 +52,6 @@ But we need to set a name too otherwise we could never login:
     => ok
 
 At this point you can boot up another telnet client and `connect Mistress`. Also, you can boot up the Erlang table viewer with `tv:start()` and inspect the ETS `connections` table to see the active connections and/or the Mnesia `object` table to examine all the objects that Oni knows about. This will contain both the `Wizard` and `Mistress` objects too.
+
+### Note
+Currently there are no checks on who can evaluate expressions directly so every player can evaluate Erlang code with the `;` prefix. Keep this in mind if you put the listener on an public open port. Oni doesn't really care about flags or permissions just yet but it will eventually.
