@@ -6,9 +6,7 @@ Currently, everything is pure Erlang. There is no plan to implement a custom pro
 Thanks to the fact that Erlang itself comes with a lot of tools especially suited to our purpose we can delegate a lot of the infrastructure to the Erlang scheduler and make use of a lot of well suited libraries to implement a LambdaMOO-like server. Maybe it's more like a MFO (Mud-Functional-Oriented) but Oni sounds nicer.
 
 ## Setup
-Compile everything from the `src` directory to the `ebin` directory with either the `make.ps1` file (if you are on Windows and have PowerShell) or by utilizing some form of `erlc` and some or your own shell magic (`make.ps1` is a one line script, even if you don't know PowerShell you should be able to understand what it does).
-
-Next, startup Erlang referencing the `ebin` directory using `erl -pa ebin` (or `werl -pa ebin` if you are on Windows).
+Windows users should be able to just `cd` into the directory where the Oni directory and then run `.\make.ps1` (assuming you have PowerShell). If you are not on Windows or you don't have PowerShell it's not that hard, just compile everything from the `src` directory to `beam` and make sure they end up in the `ebin` directory. Check the `make.ps1` file if you are unsure.
 
 ## Important
 Currently there are no checks on who can evaluate expressions directly so every player can evaluate Erlang code with the `;` prefix. Keep this in mind if you put the listener on an public open port. Oni doesn't really care about flags or permissions just yet but it will eventually.
