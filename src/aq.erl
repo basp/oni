@@ -6,16 +6,16 @@
 -module(aq).
 
 %% API
--export([start_link/0, queue/2]).
+-export([start_link/0, queue/2, clear/1]).
 
 %%%============================================================================
 %%% API
 %%%============================================================================
-start_link() -> 
+start_link() ->
     spawn_link(fun() -> loop(queue:new()) end).
 
 queue(Pid, MFA) ->
-    Pid ! {self(), {in, MFA}},
+    Pid ! {self(), {queue, MFA}},
     receive
         Any -> Any
     end.
@@ -27,7 +27,7 @@ clear(Pid) -> Pid ! clear.
 %%%============================================================================
 loop(Queue) ->
     receive
-        {From, {in, MFA}} -> 
+        {From, {queue, MFA}} -> 
             NewQueue = queue:in(MFA, Queue),
             case queue:is_empty(Queue) of
                 true -> execute(self(), MFA), From ! ok;

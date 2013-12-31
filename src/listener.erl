@@ -3,29 +3,32 @@
 %%% @copyright 2013 TMG
 %%% @end
 %%%----------------------------------------------------------------------------
--module(tcp_server).
+-module(listener).
 
 -include_lib("include/builtins.hrl").
 
 %% API
--export([start_link/1]).
+-export([start/1, start_link/1]).
 
 %%%============================================================================
 %%% API
 %%%============================================================================
+start(Port) ->
+    register(listener, spawn(fun() -> spawn_acceptor(Port) end)).
+
 start_link(Port) ->
-    Pid = spawn_link(fun() ->
-        {ok, Listen} = gen_tcp:listen(Port, [binary, {active, false}]),
-        spawn(fun() -> acceptor(Listen) end),
-        timer:sleep(infinity)
-    end),
-    {ok, Pid}.
+    register(listener, spawn_link(fun() -> spawn_acceptor(Port) end)).
 
 %%%============================================================================
 %%% Internal functions
 %%%============================================================================
+spawn_acceptor(Port) ->
+    {ok, Listen} = gen_tcp:listen(Port, [binary, {active, false}]),
+    spawn(fun() -> acceptor(Listen) end),
+    timer:sleep(infinity).
+
 acceptor(ListenSocket) ->
-    MOTD = <<"Oni - Steampunk Dreams\n\nWelcome! Please login.\n">>,
+    MOTD = <<"Oni [Little Nugget]\n\nWelcome! Please login.\n">>,
     {ok, Socket} = gen_tcp:accept(ListenSocket),
     {ok, Peer} = inet:peername(Socket),
     error_logger:info_msg("Client ~p connected~n", [Peer]),
@@ -45,28 +48,20 @@ handle_login(Socket) ->
         {tcp, Socket, Request} -> 
             {ok, Peer} = inet:peername(Socket),
             {ok, {Cmd, Args, Argstr}} = tokenize(Request),
-            log_attempt(Cmd, Args, Argstr, Peer),
             case {Cmd, Args} of 
                 {"connect", [Username|_]} -> 
                     case authorize(Username) of
                         false ->
-                            gen_tcp:send(
-                                Socket,
-                                <<"Mmmm. That doesn't seem right.\n">>),
+                            log_attempt(Cmd, Args, Argstr, Peer),                
+                            gen_tcp:send(Socket, <<"That doesn't seem right.\n">>),
                             handle_login(Socket);
                         Player ->
-                            ets:insert(connections, {Player, {Socket, Peer}}),
-                            Name = object:get_property(Player, ?NAME),
-                            error_logger:info_msg("~s logged in from ~p~n", [Name, Peer]),
-                            Msg = io_lib:format(
-                                "*** Connected (~s) ***~n", 
-                                [Name]),
-                            gen_tcp:send(Socket, Msg),
-                            handle({Socket, Peer})
+                            login(Player, {Socket, Peer}),
+                            handle(Player, {Socket, Peer})
                     end;
                 _Other ->
                     log_attempt(Cmd, Args, Argstr, Peer),
-                    gen_tcp:send(Socket, <<"That would never work.\n">>),
+                    gen_tcp:send(Socket, <<"That doesn't seem right.\n">>),
                     handle_login(Socket)
             end;
         {tcp_closed, Socket} ->
@@ -75,21 +70,34 @@ handle_login(Socket) ->
                 [Socket])
     end.
 
-handle({Socket, Peer}) ->
+handle(Player, {Socket, Peer}) ->
     inet:setopts(Socket, [{active, once}]),
     receive
+        {tcp, Socket, <<";", Str/binary>>} ->
+            gen_tcp:send(Socket, eval_to_str(binary_to_list(Str))),
+            handle(Player, {Socket, Peer});
         {tcp, Socket, <<"@quit", _/binary>>} ->
+            ctable:delete(Player),
             gen_tcp:send(Socket, <<"Bye!\n">>),
-            gen_tcp:close(Socket);
-        {tcp, Socket, Request} ->
-            %% Echo
-            gen_tcp:send(Socket, Request),
-            handle({Socket, Peer});
+            gen_tcp:close(Socket),
+            error_logger:info_msg("Client ~p disconnected.~n", [Peer]);
+        {tcp, Socket, _Request} ->
+            gen_tcp:send(Socket, <<"That would never work.\n">>),
+            handle(Player, {Socket, Peer});
         {tcp_closed, Socket} ->
+            ctable:delete(Player),
             error_logger:info_msg("Client ~p disconnected.~n", [Peer]);
         Junk ->
-            error_logger:info_msg("Received junk: ~p~n", [Junk])
+            error_logger:info_msg("Received junk: ~p~n", [Junk]),
+            handle(Player, {Socket, Peer})
     end.
+
+login(Player, {Socket, Peer}) ->
+    ctable:insert(Player, {Socket, Peer}),
+    Name = object:get_property(Player, ?NAME),
+    error_logger:info_msg("~s logged in from ~p~n", [Name, Peer]),
+    Msg = io_lib:format("*** Connected (~s) ***~n", [Name]),
+    gen_tcp:send(Socket, Msg).
 
 first(Pred, List) ->
     case lists:dropwhile(fun(X) -> not Pred(X) end, List) of
@@ -104,6 +112,21 @@ authorize(Username) ->
         false -> false;
         Player -> Player
     end.
+
+eval_to_str(Str) ->
+    try eval(Str) of
+        [Value] -> io_lib:format("=> ~p~n", [Value]);
+        [H|T] -> io_lib:format("=> ~p~n", [[H|T]])
+    catch
+        Exception:Reason -> io_lib:format("~p: ~p~n", [Exception, Reason])
+    end.
+
+eval(Str) ->
+    {ok, Ts, _} = erl_scan:string(Str),
+    {ok, ExprList} = erl_parse:parse_exprs(Ts),
+    Bindings = [],
+    {ValueList, _NewBindings} = erl_eval:expr_list(ExprList, Bindings),
+    ValueList.
 
 log_attempt(Cmd, Args, Argstr, Peer) ->
     error_logger:info_msg(

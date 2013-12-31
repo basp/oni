@@ -7,19 +7,19 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, start_link/1, next/0, reset/1, last/0]).
+-export([start/1, start_link/1, next/0, reset/1, last/0]).
 
 %% gen_server callbacks
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, 
-         code_change/3]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, 
+         terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
 
 %%%============================================================================
 %%% API
 %%%============================================================================
-start_link() ->
-    start_link(0).
+start(Seed) ->
+    gen_server:start({local, ?SERVER}, ?MODULE, [Seed, nothing], []).
 
 start_link(Seed) ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [Seed, nothing], []).

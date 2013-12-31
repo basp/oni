@@ -220,8 +220,16 @@ new_connection(Object, Data) ->
 
 get_connection(Object) ->
     case ets:lookup(connections, Object) of
-        [Data|_] -> Data;
+        [{Object, Data}|_] -> Data;
         [] -> false
+    end.
+
+notify(Conn, Msg) ->
+    case get_connection(Conn) of
+        {Socket, _Peer} -> 
+            gen_tcp:send(Socket, io_lib:format("~s~n", [Msg])),
+            ok;
+        false -> ok
     end.
 
 %%%============================================================================
@@ -237,12 +245,3 @@ set_flag(O, Flag, Value) ->
 
 is_flag_set(O, Flag) ->
     O#object.flags band Flag =:= Flag.
-
-notify(Conn, Msg) ->
-    case ets:lookup(Conn) of
-        [{Socket, _Peer}] -> 
-            Msg = io_lib:format("Notify: ~s~n", [Msg]),
-            gen_tcp:send(Socket, Msg),
-            ok;
-        [] -> ok
-    end.
