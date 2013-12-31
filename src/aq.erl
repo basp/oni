@@ -6,7 +6,7 @@
 -module(aq).
 
 %% API
--export([start_link/0, in/2]).
+-export([start_link/0, queue/2]).
 
 %%%============================================================================
 %%% API
@@ -14,11 +14,13 @@
 start_link() -> 
     spawn_link(fun() -> loop(queue:new()) end).
 
-in(Pid, MFA) ->
+queue(Pid, MFA) ->
     Pid ! {self(), {in, MFA}},
     receive
         Any -> Any
     end.
+
+clear(Pid) -> Pid ! clear.
 
 %%%============================================================================
 %%% Internal functions
@@ -39,7 +41,11 @@ loop(Queue) ->
                 empty -> ok
             end,
             loop(NewQueue);
-        _Junk -> loop(Queue)
+        clear ->
+            NewQueue = queue:new(),
+            loop(NewQueue);
+        _Junk -> 
+            loop(Queue)
     end.
 
 execute(Aq, MFA) ->
