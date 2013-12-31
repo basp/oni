@@ -14,7 +14,7 @@
          terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(TABLE, connections).
+-define(TABLE, connection).
 
 %%%============================================================================
 %%% API
