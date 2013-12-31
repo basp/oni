@@ -52,4 +52,6 @@ But we need to set a name too otherwise we could never login:
     > ;object:set_property(3, <<"name">>, "Mistress").
     => ok
 
-At this point you can boot up another telnet client and `connect Mistress`. For fun, try executing `;tv:start().` from your telnet client (when connected). This will bootup the table viewer on the server! You can use the table viewer to view the ETS `connections` table that holds all the active players and their connections. Or you can use it to view the Mnesia `object` table to view all objects Oni knows about.
+At this point you can boot up another telnet client and `connect Mistress`.
+
+For fun, try executing `;tv:start().` from your telnet client (when connected). This will bootup the table viewer on the server! You can use the table viewer to view the ETS `connections` table that holds all the active players and their connections. Or you can use it to view the Mnesia `object` table to view all objects Oni knows about.
