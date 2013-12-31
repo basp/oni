@@ -2,11 +2,11 @@
 %%% @copyright 2013 TMG
 %%% @end
 %%%----------------------------------------------------------------------------
--module(rt_server).
+-module(rt).
 -behaviour(gen_server).
 
 %% API
--export([start_link/0]).
+-export([start_link/0, execute/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -20,6 +20,9 @@
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
+execute(MFA) ->
+    gen_server:cast(?SERVER, {execute, MFA}).
+
 %%%============================================================================
 %%% gen_server callbacks
 %%%============================================================================
@@ -29,7 +32,13 @@ init([]) ->
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
-handle_cast(_Request, State) ->
+handle_cast({execute, {M, F, A}}, State) ->
+    case apply(M, F, A) of
+        {continue, Time, MFA} -> 
+            timer:apply_after(Time, rt, execute, [MFA]), 
+            ok;
+        _Other -> ok
+    end,
     {noreply, State}.
 
 handle_info(_Info, State) ->

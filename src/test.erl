@@ -34,3 +34,12 @@ foo(Socket) ->
     notify(Socket, <<"You start fooing.">>),
     timer:sleep(2000),
     notify(Socket, <<"You finish fooing.">>).
+
+start_bar() ->
+    io:format("You start barring.~n"),
+    MFA = {test, finish_bar, []},
+    {continue, 2000, MFA}.
+
+finish_bar() ->
+    io:format("You finish barring.~n"),
+    done.
