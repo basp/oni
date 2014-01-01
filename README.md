@@ -1,27 +1,7 @@
-        )                                                                ____ 
-     ( /(                                                               |   / 
-     )\())   )             (              (  (  (     (      (    ) (   |  /  
-    ((_)\ ( /( `  )  `  )  )\ )    (     ))\ )\))(    )\ )  ))\( /( )(  | /   
-     _((_))(_))/(/(  /(/( (()/(    )\ ) /((_|(_)()\  (()/( /((_)(_)|()\ |/    
-    | || ((_)_((_)_\((_)_\ )(_))  _(_/((_)) _(()((_)  )(_)|_))((_)_ ((_|      
-    | __ / _` | '_ \) '_ \) || | | ' \)) -_)\ V  V / | || / -_) _` | '_)\     
-    |_||_\__,_| .__/| .__/ \_, | |_||_|\___| \_/\_/   \_, \___\__,_|_|((_)    
-              |_|   |_|    |__/                       |__/    
-
 ## Oni
 Oni is an experiment to see how feasible it is to write a LambaMOO clone in Erlang. The aim of Oni is to depend on Erlang/OTP infrastructure as much as possible to enable most if not not all of the world to be written in those terms. 
 
 Currently, everything is pure Erlang. There is no plan to implement a custom programming language like there is in LambdaMOO. Athough we do share a lot of common concepts and a bit of API with LambdaMOO, the whole implementation is completely different. Things like `fork` and `suspend` work completely differently in Oni. In fact, we don't actually have those concepts. In Oni, those are handled with continuations.
-
-## Design
-Just like in LambdaMOO, Oni has objects, properties and verbs but there are some subtle and not so subtle differences. As far as objects and properties are concerned, they should behave mostly to what you would expect if you use the API functions from the `object` module. 
-
-### Action Queue
-Verbs however are a completely different story. LambdaMOO depends on `suspend` and `fork` constructs but Oni doesn't really know about those. However, Oni supplies a much more powerful (and generic) construct in the from of the `aq` or action queue.
-
-The action queue is a very powerful and amusing tool. It allows you to easily model actions (and their results) across a span of time. This wil greatly enhance the realism of your game. Of course, you can still execute everything immediately if you want but not only does you game become more interesting when you involve time, you also lighten the load on the server. 
-
-Thanks to the fact that Erlang itself comes with a lot of tools especially suited to our purpose we can delegate a lot of the infrastructure to the Erlang scheduler and make use of a lot of well suited libraries to implement a LambdaMOO-like server. Maybe it's more like a MFO (Mud-Functional-Oriented) but Oni sounds nicer.
 
 ## Setup
 Windows users should be able to just `cd` into the directory where the Oni directory and then run `.\make.ps1` (assuming you have PowerShell). If you are not on Windows or you don't have PowerShell it's not that hard, just compile everything from the `src` directory to `beam` and make sure they end up in the `ebin` directory. Check the `make.ps1` file if you are unsure.
