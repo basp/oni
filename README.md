@@ -3,16 +3,16 @@ Oni is an experiment to see how feasible it is to write a LambaMOO clone in Erla
 
 Currently, everything is pure Erlang. There is no plan to implement a custom programming language like there is in LambdaMOO. Athough we do share a lot of common concepts and a bit of API with LambdaMOO, the whole implementation is completely different. Things like `fork` and `suspend` work completely differently in Oni. In fact, we don't actually have those concepts. In Oni, those are handled with continuations.
 
-## Setup
-Windows users should be able to just `cd` into the directory where the Oni directory and then run `.\make.ps1` (assuming you have PowerShell). If you are not on Windows or you don't have PowerShell it's not that hard, just compile everything from the `src` directory to `beam` and make sure they end up in the `ebin` directory. Check the `make.ps1` file if you are unsure.
-
 ## Important
 Currently there are no checks on who can evaluate expressions directly so every player can evaluate Erlang code with the `;` prefix. Keep this in mind if you put the listener on an public open port. Oni doesn't really care about flags or permissions just yet but it will eventually.
 
-## Running
-In the Erlang shell, type `oni:init().` and all the moving parts of Oni will be initialized. 
+## Building
+Just just the `make.ps1` file if you are on Windows and have PowerShell. If not, just make sure everything from the `src` directory is compiled to the `ebin` directory using your method of choice.
 
-    1> oni:init().
+## Running
+In the Erlang shell, type `oni:start().` and all the moving parts of Oni will be initialized (note that this will also start Mnesia):
+
+    1> oni:start().
     ok
     2>
 
