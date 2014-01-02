@@ -89,6 +89,6 @@ You can also `emote` things:
 Or:
     
     > emote smiles, "hell yeah!"
-    Mistress grins and smiles, "hell yeah!"
+    Mistress smiles, "hell yeah!"
 
 It works like `say` but it doesn't prefix the output like a quotation.
