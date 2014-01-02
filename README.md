@@ -35,7 +35,7 @@ At this point we are connected. The Oni world is not very rich yet and there are
     > ;[1,2,3] ++ [foo, {1 + 3, quux}, xazar].
     => [1,2,3,foo,{4,quux},xazar]
 
-But we are not limited to simple expressions though. We can use te Oni object database to create a new player:
+But we are not limited to simple expressions though. We can use te Oni object database to create a new player (here, `nothing` is the parent object but Oni doesn't do anything with this yet):
 
     > ;object:create(nothing).
     => 3
