@@ -20,7 +20,9 @@
 -record(property, {name, 
                    value}).
 
-%% Called from oni:init, move this somewhere more appropriate.
+%%%============================================================================
+%%% Database operations
+%%%============================================================================
 create_db() ->
     mnesia:create_table(object, 
         [{attributes, record_info(fields, object)},
