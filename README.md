@@ -7,7 +7,7 @@ Currently, everything is pure Erlang. There is no plan to implement a custom pro
 Currently there are no checks on who can evaluate expressions directly so every player can evaluate Erlang code with the `;` prefix. Keep this in mind if you put the listener on an public open port. Oni doesn't really care about flags or permissions just yet but it will eventually.
 
 ## Building
-Just just the `make.ps1` file if you are on Windows and have PowerShell. If not, just make sure everything from the `src` directory is compiled to the `ebin` directory using your method of choice.
+Just use the `make.ps1` file if you are on Windows and have PowerShell. If not, make sure everything from the `src` directory is compiled to the `ebin` directory using your method of choice.
 
 ## Running
 ### Starting
