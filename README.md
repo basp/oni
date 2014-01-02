@@ -92,3 +92,19 @@ Or:
     Mistress smiles, "hell yeah!"
 
 It works like `say` but it doesn't prefix the output like a quotation.
+
+### Moving stuff
+You can easily move an `object` to any other `object` using the `object:move(Target)` function. If you created another player (and assuming Wizard is still in the genesis room) you can move this player to that room quite easily. But what is the id of that room? We can find out quite easily. From the Wizard telnet terminal execute the follwing:
+
+    > ;object:get_property(2, <<"location">>).
+    => 1
+
+So now we know that the location of Wizard is #1 or "The First Room" (we set this up in the `oni_app:genesis` function). We can move any other player to this room. Let's assume Mistress has object id `#3`. We can move her to Wizard's room like this:
+
+    > ;object:move(3, 2).
+
+Or even:
+    
+    > ;object:move(3, object:get_property(2, <<"location")).
+
+It's unfortunate we need to use _magic numbers_ for now but Oni will support a more reasonable alternative soon. The design is just not very polished yet.
