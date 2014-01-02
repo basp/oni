@@ -6,9 +6,19 @@
 -module(object).
 -compile(export_all).
 
--include_lib("include/records.hrl").
--include_lib("include/builtins.hrl").
 -include_lib("stdlib/include/qlc.hrl").
+-include_lib("include/builtins.hrl").
+
+-record(object, {id, 
+                 parent,
+                 name = "", 
+                 location = nothing, 
+                 owner = nothing, 
+                 properties = [],
+                 flags = 2#000000}).
+
+-record(property, {name, 
+                   value}).
 
 %% Called from oni:init, move this somewhere more appropriate.
 init_db() ->

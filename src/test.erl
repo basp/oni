@@ -6,13 +6,6 @@
 -module(test).
 -compile(export_all).
 
--include_lib("include/records.hrl").
-
-setup_db() ->
-    mnesia:start(),
-    mnesia:create_table(object, [{attributes, record_info(fields, object)}]),
-    mnesia:stop().
-
 match(Needle, Stack) ->
     match(Needle, Stack, nothing).
 
