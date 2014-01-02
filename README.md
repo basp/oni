@@ -10,7 +10,6 @@ Currently there are no checks on who can evaluate expressions directly so every 
 Just use the `make.ps1` file if you are on Windows and have PowerShell. If not, make sure everything from the `src` directory is compiled to the `ebin` directory using your method of choice.
 
 ## Running
-### Starting
 In the Erlang shell, type `oni:start().` and all the moving parts of Oni will be initialized (note that this will also start Mnesia):
 
     1> oni:start().
@@ -26,19 +25,16 @@ Anything else but a simple `ok` means that something went horribly wrong. If you
 
 Note: I'm using Mudlet and after connecting it immediately sends a bunch of garbage (probably capability info) to the server. Oni doesn't really recognize this as valid input so that's why we get the `That doesn't seem right.` output.
 
-### Connecting
 During the call to `oni:start` we initialized one player object called `Wizard`. We can connect to this object:
 
     > connect Wizard
     *** Connected (Wizard) ***
 
-### Evaluating code
 At this point we are connected. The Oni world is not very rich yet and there are no verbs to execute but we can evaluate Erlang code by prefixing the Erlang expression list with a semicolon:
 
     > ;[1,2,3] ++ [foo, {1 + 3, quux}, xazar].
     => [1,2,3,foo,{4,quux},xazar]
 
-### Creating another player
 But we are not limited to simple expressions though. We can use te Oni object database to create a new player (here, `nothing` is the parent object but Oni doesn't do anything with this yet):
 
     > ;object:create(nothing).
