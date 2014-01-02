@@ -94,7 +94,7 @@ Or:
 It works like `say` but it doesn't prefix the output like a quotation.
 
 ### Moving stuff
-You can easily move an `object` to any other `object` using the `object:move(Target)` function. If you created another player (and assuming Wizard is still in the genesis room) you can move this player to that room quite easily. But what is the id of that room? We can find out quite easily. From the Wizard telnet terminal execute the follwing:
+You can easily move an `object` to any other `object` using the `object:move(Target)` function. If you created another player (and assuming Wizard is still in the genesis room) you can move this player to that room. But what is the id of that room? We can find out quite easily. From the Wizard telnet terminal execute the follwing:
 
     > ;object:get_property(2, <<"location">>).
     => 1
