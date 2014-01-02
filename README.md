@@ -81,9 +81,14 @@ There is also a shortcut with the `'' prefix:
 
 Note that the `say` command checks whether you're asking, exclaiming or just saying something depending on the final character of your message.
 
-You can also emote things:
+You can also `emote` things:
 
     > :grins and dances around the room, "we can do this!"
     Wizard grins and dances around the room, "we can do this!"
 
-It works like say but it doesn't prefix the output like a quotation.
+Or:
+    
+    > emote smiles, "hell yeah!"
+    Mistress grins and smiles, "hell yeah!"
+
+It works like `say` but it doesn't prefix the output like a quotation.
