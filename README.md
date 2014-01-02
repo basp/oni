@@ -120,3 +120,6 @@ It's unfortunate we need to use _magic numbers_ for now but Oni will support a m
     => [2, 3]
 
 And now we have two people here. If you are connected to both players (using two telnet sessions) you should be able to `say` stuff and use Oni like a simple chat server. 
+
+## Future Ideas
+Of course it doesn't have to stay a simple chat server. You can create other rooms and make exits from one room to another. Each exit could take some time to traverse (like in HellMOO). This could be supported by the `aq` (action queue) that is not yet fully stable but almost ready. We also need to implement combat and crafting stuff and who knows what will happen if two players fight the same creature? What problems will arise? 
