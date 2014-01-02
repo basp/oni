@@ -101,7 +101,7 @@ You can easily move an `object` to any other `object` using the `object:move(Tar
 
 So now we know that the location of Wizard is #1 or "The First Room" (we set this up in the `oni_app:genesis` function). We can move any other player to this room. Let's assume Mistress has object id `#3`. We can move her to Wizard's room like this:
 
-    > ;object:move(3, 2).
+    > ;object:move(3, 1).
 
 Or even:
     
