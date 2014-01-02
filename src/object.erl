@@ -21,14 +21,17 @@
                    value}).
 
 %% Called from oni:init, move this somewhere more appropriate.
-init_db() ->
+create_db() ->
     mnesia:create_table(object, [{attributes, record_info(fields, object)}]).
+
+delete_db() ->
+    mnesia:delete_table(object).
 
 %%%============================================================================
 %%% Fundamental operations on objects
 %%%============================================================================
 create(Parent) ->
-    {ok, Id} = id_gen:next(),
+    {ok, Id} = idgen:next(),
     O = #object{id = Id, parent = Parent},
     ok = mnesia:dirty_write(object, O),
     Id.
@@ -225,21 +228,18 @@ players() ->
     R.
 
 new_connection(Object, Data) ->
-    ets:insert(connections, {Object, Data}),
+    ctable:insert(Object, Data),
     ok.
 
 get_connection(Object) ->
-    case ets:lookup(connections, Object) of
-        [{Object, Data}|_] -> Data;
-        [] -> false
-    end.
+    ctable:lookup(Object).
 
 notify(Conn, Msg) ->
     case get_connection(Conn) of
         {Socket, _Peer} -> 
             gen_tcp:send(Socket, io_lib:format("~s~n", [Msg])),
             ok;
-        false -> ok
+        nothing -> ok
     end.
 
 %%%============================================================================

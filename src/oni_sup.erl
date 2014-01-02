@@ -32,10 +32,10 @@ start_in_shell() ->
 %%%============================================================================
 init([]) ->
     ctable:create(),
-    Tag1 = {idgen, {idgen, start_link, [0]},
+    Idgen = {idgen, {idgen, start_link, [0]},
             permanent, 10000, worker, [idgen]},
-    Tag2 = {rt, {rt, start_link, []},
+    Rt = {rt, {rt, start_link, []},
             permanent, 10000, worker, [rt]},
-    Children = [Tag1, Tag2],
+    Children = [Idgen, Rt],
     RestartStrategy = {one_for_one, 3, 10},
     {ok, {RestartStrategy, Children}}.

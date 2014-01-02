@@ -3,7 +3,7 @@
 %%% @copyright 2013-2014 TMG
 %%% @end
 %%%----------------------------------------------------------------------------
--module(oni).
+-module(old_init).
 -compile(export_all).
 
 -include_lib("include/builtins.hrl").
