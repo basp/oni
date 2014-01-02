@@ -1,7 +1,7 @@
 ## Oni
 Oni is an experiment to see how feasible it is to write a LambaMOO clone in Erlang. The aim of Oni is to depend on Erlang/OTP infrastructure as much as possible to enable most if not not all of the world to be written in those terms. 
 
-Currently, everything is pure Erlang. There is no plan to implement a custom programming language like there is in LambdaMOO. Athough we do share a lot of common concepts and a bit of API with LambdaMOO, the whole implementation is completely different. Things like `fork` and `suspend` work completely differently in Oni. In fact, we don't actually have those concepts. In Oni, those are handled with continuations.
+Currently, everything is pure Erlang. There is no plan to implement a custom programming language like there is in LambdaMOO. Athough we do share a lot of common concepts and a bit of API with LambdaMOO, the whole implementation is completely different. Things like `fork` and `suspend` work completely differently in Oni. In fact, we don't actually have those concepts because they are built into the Erlang VM. In Oni, those are handled with continuations and the use of Erlang functions and processes.
 
 ## Important
 Currently there are no checks on who can evaluate expressions directly so every player can evaluate Erlang code with the `;` prefix. Keep this in mind if you put the listener on an public open port. Oni doesn't really care about flags or permissions just yet but it will eventually.
