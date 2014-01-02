@@ -22,7 +22,9 @@
 
 %% Called from oni:init, move this somewhere more appropriate.
 create_db() ->
-    mnesia:create_table(object, [{attributes, record_info(fields, object)}]).
+    mnesia:create_table(object, 
+        [{attributes, record_info(fields, object)},
+         {ram_copies, [node()]}]).
 
 delete_db() ->
     mnesia:delete_table(object).
