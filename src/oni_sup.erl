@@ -30,9 +30,10 @@ start_in_shell() ->
 %%% gen_server callbacks
 %%%============================================================================
 init([]) ->
-    Tag1 = {tag1, {idgen, start_link, [0]},
+    ctable:create(),
+    Tag1 = {idgen, {idgen, start_link, [0]},
             permanent, 10000, worker, [idgen]},
-    Tag2 = {tag2, {rt, start_link, []},
+    Tag2 = {rt, {rt, start_link, []},
             permanent, 10000, worker, [rt]},
     Children = [Tag1, Tag2],
     RestartStrategy = {one_for_one, 3, 10},
