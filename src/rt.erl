@@ -6,7 +6,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start/0, start_link/0, execute/1]).
+-export([start_link/0, execute/1, execute/3]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -17,26 +17,25 @@
 %%%============================================================================
 %%% API
 %%%============================================================================
-start() ->
-    gen_server:start({local, ?SERVER}, ?MODULE, [], []).
-
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 execute(MFA) ->
     gen_server:call(?SERVER, {execute, MFA}).
 
+execute(M, F, A) ->
+    gen_server:call(?SERVER, {execute, {M, F, A}}).
+
 %%%============================================================================
 %%% gen_server callbacks
 %%%============================================================================
 init([]) ->
+    process_flag(trap_exit, true),
     {ok, []}.
 
 handle_call({execute, {M, F, A}}, _From, State) ->
     R = apply(M, F, A),
-    {reply, {ok, R}, State};
-handle_call(_Request, _From, State) ->
-    {reply, ok, State}.
+    {reply, R, State}.
 
 handle_cast(_Request, State) ->
     {noreply, State}.

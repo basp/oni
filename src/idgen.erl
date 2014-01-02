@@ -1,13 +1,12 @@
 %%%----------------------------------------------------------------------------
-%%% @author Bas Pennings [http://themeticulousgeek.com/]
 %%% @copyright 2013 TMG
 %%% @end
 %%%----------------------------------------------------------------------------
--module(id_gen).
+-module(idgen).
 -behaviour(gen_server).
 
 %% API
--export([start/1, start_link/1, next/0, reset/1, last/0]).
+-export([start_link/1, next/0, last/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, 
@@ -18,25 +17,20 @@
 %%%============================================================================
 %%% API
 %%%============================================================================
-start(Seed) ->
-    gen_server:start({local, ?SERVER}, ?MODULE, [Seed, nothing], []).
-
 start_link(Seed) ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [Seed, nothing], []).
 
-next() ->
+next() -> 
     gen_server:call(?SERVER, next).
 
-last() ->
+last() -> 
     gen_server:call(?SERVER, last).
-
-reset(Seed) ->
-    gen_server:cast(?SERVER, {reset, Seed}).
 
 %%%============================================================================
 %%% gen_server callbacks
 %%%============================================================================
-init([Seed, nothing]) ->
+init([Seed, nothing]) -> 
+    process_flag(trap_exit, true),
     {ok, {Seed, nothing}}.
 
 handle_call(next, _From, {Next, _Last}) ->
@@ -44,14 +38,12 @@ handle_call(next, _From, {Next, _Last}) ->
 handle_call(last, _From, {Next, Last}) ->
     {reply, {ok, Last}, {Next, Last}}.
 
-handle_cast({reset, Seed}, {_Next, Last}) ->
-    {noreply, {Seed, Last}}.
+handle_cast(_Request, State) -> {noreply, State}.
 
-handle_info(_Info, State) ->
-    {noreply, State}.
+handle_info(_Info, State) -> {noreply, State}.
 
 terminate(_Reason, _State) ->
     ok.
 
-code_change(_OldVsn, State, _Extra) -> 
+code_change(_OldVsn, State, _Extra) ->
     {ok, State}.

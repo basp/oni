@@ -50,8 +50,9 @@ loop(Queue) ->
 
 execute(Aq, MFA) ->
     F = fun() -> 
-        case rt:execute(MFA) of
-            {ok, {continue, Time, CMFA}} ->
+        R = rt:execute(MFA),
+        case R of
+            {continue, Time, CMFA} ->
                 timer:sleep(Time),
                 execute(Aq, CMFA),
                 ok;

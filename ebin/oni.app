@@ -1,8 +1,8 @@
 {application, oni, 
- [{description, "LambdaMOO server clone."},
+ [{description, "Oni"},
   {vsn, "0.1.0"},
-  {modules, [oni_app, oni_rt_server]},
-  {registered, [oni_rt_server]},
+  {modules, [oni_app, oni_sup, rt, idgen]},
+  {registered, [rt, idgen, oni_sup]},
   {applications, [kernel, stdlib]},
   {mod, {oni_app, []}}
 ]}.
