@@ -72,7 +72,7 @@ Note that the `say` command checks whether you're asking, exclaiming or just say
 
 You can also emote things:
 
-    > :grins and dances around the room, "Murder!"
-    Wizard dances grins and dances around the room, "We can do this!"
+    > :grins and dances around the room, "we can do this!"
+    Wizard dances grins and dances around the room, "we can do this!"
 
 It works like say but it doesn't prefix the output like a quotation.
