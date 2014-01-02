@@ -10,15 +10,17 @@ Also, Oni is not very persistent yet. You might be able to backup the Mnesia dat
 
 ## Just Remember this
 
-    * Don't put this on a public port
-    * Only allow trusted people to hack with `;`
-    * The database will not be compatible going forward
-    * That means you need to utilize that API
-    * And also that you cannot invite players
-    * The world will not be persisted beyond your initialization scripts.
+*   Don't put this on a public port
+*   Only allow trusted people to hack with `;`
+*   The database will not be compatible going forward
+*   That means you need to utilize that API
+*   And also that you cannot invite players
+*   The world will not be persisted beyond your initialization scripts.
 
 ## Building
 Just use the `make.ps1` file if you are on Windows and have PowerShell. If not, make sure everything from the `src` directory is compiled to the `ebin` directory using your method of choice.
+
+After that, just go `werl -pa ebin` or `erl -pa ebin` if you are not in Windows.
 
 ## Running
 In the Erlang shell, type `oni:start().` and all the moving parts of Oni will be initialized (note that this will also start Mnesia):
