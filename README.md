@@ -25,7 +25,7 @@ Anything else but a simple `ok` means that something went horribly wrong. If you
 
 Note: I'm using Mudlet and after connecting it immediately sends a bunch of garbage (probably capability info) to the server. Oni doesn't really recognize this as valid input so that's why we get the `That doesn't seem right.` output.
 
-During the call to `oni:init` we initialized one player object called `Wizard`. We can connect to this object:
+During the call to `oni:start` we initialized one player object called `Wizard`. We can connect to this object:
 
     > connect Wizard
     *** Connected (Wizard) ***
