@@ -6,6 +6,17 @@ Currently, everything is pure Erlang. There is no plan to implement a custom pro
 ## Important
 Currently there are no checks on who can evaluate expressions directly so every player can evaluate Erlang code with the `;` prefix. Keep this in mind if you put the listener on an public open port. Oni doesn't really care about flags or permissions just yet but it will eventually.
 
+Also, Oni is not very persistent yet. You might be able to backup the Mnesia database (especially the `object` table) or dump it in some way but there are no guarantees about compatibility. If you are gonna create something based on Oni, make sure you can recreate it with Erlang code using the Oni API. Also, don't plan to let any random players in just yet and make sure you trust anyone you allow to hack around using the `;` prefix.
+
+## Just Remember this
+
+    * Don't put this on a public port
+    * Only allow trusted people to hack with `;`
+    * The database will not be compatible going forward
+    * That means you need to utilize that API
+    * And also that you cannot invite players
+    * The world will not be persisted beyond your initialization scripts.
+
 ## Building
 Just use the `make.ps1` file if you are on Windows and have PowerShell. If not, make sure everything from the `src` directory is compiled to the `ebin` directory using your method of choice.
 
