@@ -10,6 +10,9 @@
 %% API
 -export([start/1, start_link/1]).
 
+-define(INVALID_MSG, <<"That doesn't seem right.">>).
+-define(SEPARATORS, " \t\r\n").
+
 %%%============================================================================
 %%% API
 %%%============================================================================
@@ -36,9 +39,14 @@ acceptor(ListenSocket) ->
     gen_tcp:send(Socket, MOTD),
     handle_login(Socket).
 
+normalize(Str) when is_binary(Str) -> normalize(binary_to_list(Str));
+normalize(Str) ->
+    Tokens = string:tokens(Str, ?SEPARATORS),
+    string:join(Tokens, " ").
+
 tokenize(Request) ->
     Line = binary_to_list(Request),
-    [Cmd|Args] = string:tokens(Line, " \r\n"), % Handle all WS here
+    [Cmd|Args] = string:tokens(Line, ?SEPARATORS),
     Argstr = string:join(Args, " "),
     {ok, {Cmd, Args, Argstr}}.
 
@@ -53,7 +61,7 @@ handle_login(Socket) ->
                     case authorize(Username) of
                         false ->
                             log_attempt(Cmd, Args, Argstr, Peer),                
-                            gen_tcp:send(Socket, <<"That doesn't seem right.\n">>),
+                            gen_tcp:send(Socket, ?INVALID_MSG),
                             handle_login(Socket);
                         Player ->
                             login(Player, {Socket, Peer}),
@@ -61,7 +69,7 @@ handle_login(Socket) ->
                     end;
                 _Other ->
                     log_attempt(Cmd, Args, Argstr, Peer),
-                    gen_tcp:send(Socket, <<"That doesn't seem right.\n">>),
+                    gen_tcp:send(Socket, ?INVALID_MSG),
                     handle_login(Socket)
             end;
         {tcp_closed, Socket} ->
@@ -76,13 +84,23 @@ handle(Player, {Socket, Peer}) ->
         {tcp, Socket, <<";", Str/binary>>} ->
             gen_tcp:send(Socket, eval_to_str(binary_to_list(Str))),
             handle(Player, {Socket, Peer});
+        {tcp, Socket, <<":", Str/binary>>} ->
+            test:emote(Player, normalize(Str)),
+            handle(Player, {Socket, Peer});
+        {tcp, Socket, <<"'", Str/binary>>} ->
+            test:say(Player, normalize(Str)),
+            handle(Player, {Socket, Peer});
         {tcp, Socket, <<"@quit", _/binary>>} ->
             ctable:delete(Player),
             gen_tcp:send(Socket, <<"Bye!\n">>),
             gen_tcp:close(Socket),
             error_logger:info_msg("Client ~p disconnected.~n", [Peer]);
-        {tcp, Socket, _Request} ->
-            gen_tcp:send(Socket, <<"That would never work.\n">>),
+        {tcp, Socket, Request} ->
+            case tokenize(Request) of
+                {ok, {"say", _Args, Argstr}} -> test:say(Player, Argstr);
+                {ok, {"emote", _Args, Argstr}} -> test:emote(Player, Argstr);
+                _ -> object:notify(Player, ?INVALID_MSG)
+            end,
             handle(Player, {Socket, Peer});
         {tcp_closed, Socket} ->
             ctable:delete(Player),

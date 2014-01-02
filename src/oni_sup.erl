@@ -31,7 +31,8 @@ start_in_shell() ->
 %%% gen_server callbacks
 %%%============================================================================
 init([]) ->
-    ctable:create(),
+    connection = ctable:create(),
+    true = listener:start(7777),
     Idgen = {idgen, {idgen, start_link, [0]},
             permanent, 10000, worker, [idgen]},
     Rt = {rt, {rt, start_link, []},

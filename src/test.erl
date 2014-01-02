@@ -6,6 +6,9 @@
 -module(test).
 -compile(export_all).
 
+-include_lib("include/builtins.hrl").
+
+%% Basic match function
 match(Needle, Stack) ->
     match(Needle, Stack, nothing).
 
@@ -19,15 +22,29 @@ match(Needle, [Thing|Rest], Found) ->
         nomatch -> match(Needle, Rest, Found)
     end.
 
-notify(Socket, Msg) ->
-    Line = io_lib:format("~s~n", [Msg]),
-    gen_tcp:send(Socket, Line).
+%% Simple verbs
+emote(Player, Str) ->
+    Name = object:get_property(Player, ?NAME),
+    Msg = io_lib:format("~s ~s", [Name, Str]),
+    Location = object:get_property(Player, ?LOCATION),
+    Contents = object:contents(Location),
+    Players = lists:filter(fun(X) -> object:is_player(X) end, Contents),
+    lists:foreach(fun(X) -> object:notify(X, Msg) end, Players).
 
-foo(Socket) ->
-    notify(Socket, <<"You start fooing.">>),
-    timer:sleep(2000),
-    notify(Socket, <<"You finish fooing.">>).
+say(Player, Str) -> 
+    Say = case string:sub_string(Str, string:len(Str)) of
+        "!" -> "exclaims";
+        "?" -> "asks";
+        _ -> "says"
+    end,
+    Name = object:get_property(Player, ?NAME),
+    Msg = io_lib:format("~s ~s, \"~s\"", [Name, Say, Str]),
+    Location = object:get_property(Player, ?LOCATION),
+    Contents = object:contents(Location),
+    Players = lists:filter(fun(X) -> object:is_player(X) end, Contents),
+    lists:foreach(fun(X) -> object:notify(X, Msg) end, Players).
 
+%% Example action
 start_bar() ->
     io:format("You start barring.~n"),
     MFA = {test, finish_bar, []},
