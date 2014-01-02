@@ -99,6 +99,13 @@ You can easily move an `object` to any other `object` using the `object:move(Tar
     > ;object:get_property(2, <<"location">>).
     => 1
 
+We can be 200% sure by executing the `object:contents` function:
+
+    > ;object:contents(1).
+    => [2]
+
+The object with id `#2` is Wizard and that should be us.
+
 So now we know that the location of Wizard is #1 or "The First Room" (we set this up in the `oni_app:genesis` function). We can move any other player to this room. Let's assume Mistress has object id `#3`. We can move her to Wizard's room like this:
 
     > ;object:move(3, 1).
@@ -107,4 +114,9 @@ Or even:
     
     > ;object:move(3, object:get_property(2, <<"location")).
 
-It's unfortunate we need to use _magic numbers_ for now but Oni will support a more reasonable alternative soon. The design is just not very polished yet.
+It's unfortunate we need to use _magic numbers_ for now but Oni will support a more reasonable alternative soon. The design is just not very polished yet. We can double check that everybody is here by executing the `object:contents` function again:
+
+    > ;object:contents(1).
+    => [2, 3]
+
+And now we have two people here. If you are connected to both players (using two telnet sessions) you should be able to `say` stuff and use Oni like a simple chat server. 
