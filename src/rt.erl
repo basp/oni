@@ -30,7 +30,7 @@ execute(M, F, A) ->
 %%%============================================================================
 %%% gen_server callbacks
 %%%============================================================================
-init([]) ->
+init([]) -> 
     process_flag(trap_exit, true),
     {ok, []}.
 
@@ -38,14 +38,10 @@ handle_call({execute, {M, F, A}}, _From, State) ->
     R = apply(M, F, A),
     {reply, R, State}.
 
-handle_cast(_Request, State) ->
-    {noreply, State}.
+handle_cast(_Request, State) -> {noreply, State}.
 
-handle_info(_Info, State) ->
-    {noreply, State}.
+handle_info(_Info, State) -> {noreply, State}.
 
-terminate(_Reason, _State) ->
-    ok.
+terminate(_Reason, _State) -> ok.
 
-code_change(_OldVsn, State, _Extra) ->
-    {ok, State}.
+code_change(_OldVsn, State, _Extra) -> {ok, State}.
