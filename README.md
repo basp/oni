@@ -1,3 +1,8 @@
+     /¯¯,¯¯\  |\¯¯¯\)¯¯\   |¯¯¯|          
+    |\____ /|' |/__/\____\°|___|          
+     \|___ |/ °|__|/\|____| |___|          
+                        '           ‘            
+
 ## Oni
 Oni is an experiment to see how feasible it is to write a LambaMOO clone in Erlang. The aim of Oni is to depend on Erlang/OTP infrastructure as much as possible to enable most if not not all of the world to be written in those terms. 
 
