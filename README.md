@@ -1,5 +1,5 @@
 ## Update
-Oni is complete but it does contain enough moving parts, needles infrastructure and lack of documentation, specs and tests to warrant a rewrite. There might be updates to fix obvious things but for now works continues with [Lum Invader](http://github.com/basp/lum-invader).
+Oni is not complete but it does contain enough moving parts, needless infrastructure and lack of documentation, specs and tests to warrant a rewrite. There might be updates to fix obvious things but for now works continues with [Lum Invader](http://github.com/basp/lum-invader).
 
 ## Oni
 Oni is an experiment to see how feasible it is to write a LambaMOO clone in Erlang. The aim of Oni is to depend on Erlang/OTP infrastructure as much as possible to enable most if not not all of the world to be written in those terms. 
